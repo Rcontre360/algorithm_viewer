@@ -1,31 +1,41 @@
 
 import {Graph} from "../structures"
 
+interface DFSOptions <T>{
+	startIndex?:number,
+	handleNodeData?(nodeData:T,index?:number):void
+}
+
 let visited:boolean[] = []
 
-const deepFirstSearch = <T>(graph: Graph<T>, startIndex: number, manipulateNodeData:Function): void => {
+const deepFirstSearch = <T>(graph: Graph<T>, options:DFSOptions<T>): void => {
 
-	if (graph.getNumberOfElements()<=startIndex)
+	const {
+		startIndex,
+		handleNodeData,
+	} = options
+
+	if (graph.getNumberOfElements() <= startIndex)
 		return
 	visited[startIndex] = true
 
-	manipulateNodeData(graph.getNodeData(startIndex),startIndex)
+	if (handleNodeData instanceof Function)
+		handleNodeData(graph.getNodeData(startIndex),startIndex)
 
 	const nodes:number[] = graph.getNodeConnections(startIndex)
-	nodes.forEach((nodeIndex:number)=>{
-		if (!visited[nodeIndex])
-			deepFirstSearch(graph, nodeIndex, manipulateNodeData)
-	})
 
+	for (let i = 0; i < nodes.length;i++) 
+		if (!visited[nodes[i]])
+			deepFirstSearch(graph,{...options,startIndex:nodes[i]})
 }
 
-const driverFunction = <T>(graph:Graph<T>,startIndex:number,manipulateNodeData:Function):void => {
-	if (graph.getNumberOfElements()<= startIndex)
-		return
+const driverFunction = <T>(graph: Graph<T>, options: DFSOptions<T>): void => {
+
+	options.startIndex = options.startIndex || 0
 
 	visited = new Array(graph.getNumberOfElements())
 	visited.fill(false)
-	deepFirstSearch(graph,startIndex,manipulateNodeData)
+	deepFirstSearch(graph, options)
 }
 
 export {

@@ -1,7 +1,7 @@
 import {fabric} from "fabric"
 const {Circle} = fabric
 
-interface GraphInterface<T extends Object>{
+interface GraphInterface<T extends unknown> {
 	addNode(node:T):void,
 	connectNodes(src:number,dest:number):void,
 	deleteNode(node:number):void,
@@ -10,26 +10,70 @@ interface GraphInterface<T extends Object>{
 	getNumberOfElements():number
 }
 
-class Graph<T extends Object> implements GraphInterface<T> {
-	private nodes:number[][]
-	private nodeData:T[]
-	private numberOfElements:number
+interface GraphOptions<T extends unknown>{
+  onConnect?(nodeSourceData,nodeDestData):void,
+  onAddNode?(nodeData):void
+}
 
-	constructor(nodes?:number[][],nodeData?:T[]){
+class Graph<T extends unknown> implements GraphInterface<T> {
+	private nodes:number[][] = []
+	private nodeData:T[] = []
+	private numberOfElements:number = 0
+  private options:GraphOptions<T> = {}
+
+	constructor(nodes?:number[][],nodeData?:T[],options?:GraphOptions<T>){
 		if (nodes && nodeData){
 			this.numberOfElements = nodes.length
 			this.nodes = [...nodes]
 			this.nodeData = [...nodeData]
+
+      if (options)
+        this.options = options
+
+      if (options.onConnect){
+        this.applyOnConnect()
+      }
 		}
 	}
 
+  private applyOnConnect(){
+    this.nodes.forEach((connections, index) => {
+
+      connections.forEach(nodeIndex => {
+        const nodeSrc = this.nodeData[index]
+        const nodeDest = this.nodeData[nodeIndex]
+
+        this.applyOptions("onConnect", nodeSrc, nodeDest)
+        this.applyOptions("onConnect", nodeDest, nodeSrc)
+      })
+
+    })
+  }
+
+  private applyOptions(type:string,...args:unknown[]){
+    if (this.options[type] && this.options[type] instanceof Function)
+      this.options[type](...args)
+  }
+
+  setGraphOptions(newOptions:GraphOptions<T> | Function) {
+    if (newOptions instanceof Function)
+      this.options = newOptions(this.options)
+    else
+      this.options = newOptions
+  }
+
 	addNode(nodeAdded:T):void{
+    this.applyOptions("onAddNode",nodeAdded)
 		this.numberOfElements++;
 		this.nodeData.push(nodeAdded)
 		this.nodes.push([])
 	}
 
 	connectNodes(nodeSource:number,nodeDest:number):void{
+    const sourceData = this.nodeData[nodeSource]
+    const destData = this.nodeData[nodeDest]
+    this.applyOptions("onConnect",sourceData,destData)
+
 		this.nodes[nodeSource].push(nodeDest)
 		this.nodes[nodeDest].push(nodeSource)
 	}
@@ -37,12 +81,15 @@ class Graph<T extends Object> implements GraphInterface<T> {
 	deleteNode(nodeDeleted:number):void{
 		if (this.numberOfElements<=nodeDeleted)
 			return
+
 		this.nodes[nodeDeleted] = null
 		this.nodes.forEach((nodeConnections,index)=>{
 			if (nodeConnections)
 				this.nodes[index] = nodeConnections.filter(nodeIndex => nodeIndex !== nodeDeleted)
 		})
 		this.nodeData[nodeDeleted] = null
+
+    this.numberOfElements--
 	}
 
 	getNodeData(nodeIndex:number):T{
