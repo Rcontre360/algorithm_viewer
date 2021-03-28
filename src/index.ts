@@ -1,13 +1,22 @@
 import {fabric} from "fabric"
-import {Canvas} from "./shapes"
+import {Graph} from "./structures"
 
-const pointArr:fabric.Point[] = [new fabric.Point(10,10),new fabric.Point(100,100)] 
+const graphArr = [
+	[1,2],
+	[0,2],
+	[],
+]
+const graphData = [{name:"rafa"},{name:"fran"},{name:"yenny"}]
+const myGraph:Graph<Object> = new Graph(graphArr,graphData)
 
-var rect = new fabric.Line([50, 100, 200, 200,250,250,300,300], {
-	left: 170,
-	top: 150,
-	stroke: 'red'
-})
+myGraph.addNode({name:"new node"})
+myGraph.connectNodes(0,3)
+myGraph.connectNodes(1,3)
+console.log(myGraph.nodeData)
+console.log(myGraph.nodes)
+myGraph.deleteNode(1)
 
-Canvas.add(rect)
- 
+console.log(myGraph.nodes)
+console.log(myGraph.nodeData)
+console.log(myGraph.getNodeData(3))
+
