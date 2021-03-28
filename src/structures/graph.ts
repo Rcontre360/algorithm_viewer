@@ -5,13 +5,15 @@ interface GraphInterface<T extends Object>{
 	addNode(node:T):void,
 	connectNodes(src:number,dest:number):void,
 	deleteNode(node:number):void,
-	getNodeData(node:number):T
+	getNodeData(node:number):T,
+	getNodeConnections(node:number):number[],
+	getNumberOfElements():number
 }
 
 class Graph<T extends Object> implements GraphInterface<T> {
-	nodes:number[][]
-	nodeData:T[]
-	numberOfElements:number
+	private nodes:number[][]
+	private nodeData:T[]
+	private numberOfElements:number
 
 	constructor(nodes?:number[][],nodeData?:T[]){
 		if (nodes && nodeData){
@@ -47,6 +49,14 @@ class Graph<T extends Object> implements GraphInterface<T> {
 		if (this.numberOfElements<=nodeIndex)
 			return null
 		return this.nodeData[nodeIndex]
+	}
+
+	getNodeConnections(nodeIndex:number):number[]{
+		return this.nodes[nodeIndex]
+	}
+
+	getNumberOfElements():number{
+		return this.numberOfElements 
 	}
 }
 
