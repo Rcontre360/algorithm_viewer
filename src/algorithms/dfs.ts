@@ -2,13 +2,13 @@
 import {Graph} from "../structures"
 
 interface DFSOptions <T>{
-	startIndex?:number,
+	startIndex:number,
 	handleNodeData?(nodeData:T,index?:number):void
 }
 
 let visited:boolean[] = []
 
-const deepFirstSearch = <T>(graph: Graph<T>, options:DFSOptions<T>): void => {
+const deepFirstSearch = <T extends object>(graph: Graph<T>, options:DFSOptions<T>): void => {
 
 	const {
 		startIndex,
@@ -20,7 +20,7 @@ const deepFirstSearch = <T>(graph: Graph<T>, options:DFSOptions<T>): void => {
 	visited[startIndex] = true
 
 	if (handleNodeData instanceof Function)
-		handleNodeData(graph.getNodeData(startIndex),startIndex)
+	 	handleNodeData(graph.getNodeData(startIndex),startIndex)
 
 	const nodes:number[] = graph.getNodeConnections(startIndex)
 
@@ -29,7 +29,7 @@ const deepFirstSearch = <T>(graph: Graph<T>, options:DFSOptions<T>): void => {
 			deepFirstSearch(graph,{...options,startIndex:nodes[i]})
 }
 
-const driverFunction = <T>(graph: Graph<T>, options: DFSOptions<T>): void => {
+const driverFunction = <T extends object>(graph: Graph<T>, options: DFSOptions<T>): void => {
 
 	options.startIndex = options.startIndex || 0
 

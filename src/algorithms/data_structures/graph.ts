@@ -1,25 +1,32 @@
-import {fabric} from "fabric"
-const {Circle} = fabric
+//import {fabric} from "fabric"
+//const {Circle} = fabric
 
-interface GraphInterface<T extends unknown> {
+type GraphType = object
+
+interface GraphInterface<T extends GraphType> {
 	addNode(node:T):void,
 	connectNodes(src:number,dest:number):void,
 	deleteNode(node:number):void,
-	getNodeData(node:number):T,
+	getNodeData(node:number):T | null,
 	getNodeConnections(node:number):number[],
 	getNumberOfElements():number
 }
 
-interface GraphOptions<T extends unknown>{
-  onConnect?(nodeSourceData,nodeDestData):void,
-  onAddNode?(nodeData):void
+interface GraphOptions<T extends GraphType>{
+  onConnect(...nodeUserArguments:T[]):void,
+  onAddNode(...nodeUserArguments: T[]): void
 }
 
-class Graph<T extends unknown> implements GraphInterface<T> {
+type GraphOptionsKeys = keyof GraphOptions<GraphType>
+
+class Graph<T extends GraphType> implements GraphInterface<T> {
 	private nodes:number[][] = []
 	private nodeData:T[] = []
 	private numberOfElements:number = 0
-  private options:GraphOptions<T> = {}
+  private options:GraphOptions<T> = {
+    onConnect:()=>1,
+    onAddNode:()=>1
+  }
 
 	constructor(nodes?:number[][],nodeData?:T[],options?:GraphOptions<T>){
 		if (nodes && nodeData){
@@ -28,11 +35,8 @@ class Graph<T extends unknown> implements GraphInterface<T> {
 			this.nodeData = [...nodeData]
 
       if (options)
-        this.options = options
-
-      if (options.onConnect){
-        this.applyOnConnect()
-      }
+        this.options = {...this.options,...options}
+      this.applyOnConnect()
 		}
 	}
 
@@ -50,8 +54,8 @@ class Graph<T extends unknown> implements GraphInterface<T> {
     })
   }
 
-  private applyOptions(type:string,...args:unknown[]){
-    if (this.options[type] && this.options[type] instanceof Function)
+  private applyOptions(type: GraphOptionsKeys, ...args: T[]) {
+    if (this.options[type] instanceof Function)
       this.options[type](...args)
   }
 
@@ -81,20 +85,19 @@ class Graph<T extends unknown> implements GraphInterface<T> {
 	deleteNode(nodeDeleted:number):void{
 		if (this.numberOfElements<=nodeDeleted)
 			return
+    const filterFunction = (nodeConnections:number[] | T | number,index:number)=>index!==nodeDeleted
 
-		this.nodes[nodeDeleted] = null
+		this.nodes.filter(filterFunction)
 		this.nodes.forEach((nodeConnections,index)=>{
 			if (nodeConnections)
-				this.nodes[index] = nodeConnections.filter(nodeIndex => nodeIndex !== nodeDeleted)
+				this.nodes[index] = nodeConnections.filter(filterFunction)
 		})
-		this.nodeData[nodeDeleted] = null
+		this.nodeData = this.nodeData.filter(filterFunction)
 
     this.numberOfElements--
 	}
 
 	getNodeData(nodeIndex:number):T{
-		if (this.numberOfElements<=nodeIndex)
-			return null
 		return this.nodeData[nodeIndex]
 	}
 
