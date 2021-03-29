@@ -3,7 +3,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 	mode: 'development',
-	entry: './src/index.ts',
+	entry: './src/index.tsx',
 	mode: 'development', 
 	devtool: 'source-map',
 	watchOptions: {
@@ -12,10 +12,23 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.tsx?$/,
-				use: 'ts-loader',
+				test: /\.(js|jsx)$/,
 				exclude: /node_modules/,
+				use: ["babel-loader"],
 			},
+			{
+				test: /\.(ts|tsx)$/,
+				exclude: /node_modules/,
+				use: ["ts-loader"],
+			},
+			// {
+			// 	test: /\.(css|scss)$/,
+			// 	use: ["style-loader", "css-loader"],
+			// },
+			// {
+			// 	test: /\.(jpg|jpeg|png|gif|mp3|svg)$/,
+			// 	use: ["file-loader"],
+			// },
 		],
 	},
 	resolve: {
