@@ -1,6 +1,8 @@
 import React,{useEffect} from "react"
+import { applyMiddleware, createStore } from 'redux'
+import { useSelector } from 'react-redux';
 import {fabric} from "fabric"
-import {Canvas} from "../shapes"
+import {Canvas} from "../canvas_shapes"
 
 const App = ()=>{
 
@@ -13,6 +15,7 @@ const App = ()=>{
 		})
 		const testCanvas = new Canvas("main_canvas","canvas_container")
 		testCanvas.add(circle)
+
 	},[])
 
 	return (

@@ -1,23 +1,9 @@
-//import {fabric} from "fabric"
-//const {Circle} = fabric
+type GraphOptionsKeys = keyof GraphOptions<GraphType>
 
-type GraphType = object
-
-interface GraphInterface<T extends GraphType> {
-	addNode(node:T):void,
-	connectNodes(src:number,dest:number):void,
-	deleteNode(node:number):void,
-	getNodeData(node:number):T | null,
-	getNodeConnections(node:number):number[],
-	getNumberOfElements():number
-}
-
-interface GraphOptions<T extends GraphType>{
-  onConnect(...nodeUserArguments:T[]):void,
+interface GraphOptions<T extends GraphType> {
+  onConnect(...nodeUserArguments: T[]): void,
   onAddNode(...nodeUserArguments: T[]): void
 }
-
-type GraphOptionsKeys = keyof GraphOptions<GraphType>
 
 class Graph<T extends GraphType> implements GraphInterface<T> {
 	private nodes:number[][] = []
@@ -39,25 +25,6 @@ class Graph<T extends GraphType> implements GraphInterface<T> {
       this.applyOnConnect()
 		}
 	}
-
-  private applyOnConnect(){
-    this.nodes.forEach((connections, index) => {
-
-      connections.forEach(nodeIndex => {
-        const nodeSrc = this.nodeData[index]
-        const nodeDest = this.nodeData[nodeIndex]
-
-        this.applyOptions("onConnect", nodeSrc, nodeDest)
-        this.applyOptions("onConnect", nodeDest, nodeSrc)
-      })
-
-    })
-  }
-
-  private applyOptions(type: GraphOptionsKeys, ...args: T[]) {
-    if (this.options[type] instanceof Function)
-      this.options[type](...args)
-  }
 
   setGraphOptions(newOptions:GraphOptions<T> | Function) {
     if (newOptions instanceof Function)
@@ -108,6 +75,25 @@ class Graph<T extends GraphType> implements GraphInterface<T> {
 	getNumberOfElements():number{
 		return this.numberOfElements 
 	}
+
+  private applyOnConnect() {
+    this.nodes.forEach((connections, index) => {
+
+      connections.forEach(nodeIndex => {
+        const nodeSrc = this.nodeData[index]
+        const nodeDest = this.nodeData[nodeIndex]
+
+        this.applyOptions("onConnect", nodeSrc, nodeDest)
+        this.applyOptions("onConnect", nodeDest, nodeSrc)
+      })
+
+    })
+  }
+
+  private applyOptions(type: GraphOptionsKeys, ...args: T[]) {
+    if (this.options[type] instanceof Function)
+      this.options[type](...args)
+  }
 }
 
 export {

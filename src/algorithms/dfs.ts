@@ -1,6 +1,4 @@
 
-import {Graph} from "../structures"
-
 interface DFSOptions <T>{
 	startIndex:number,
 	handleNodeData?(nodeData:T,index?:number):void
@@ -8,7 +6,7 @@ interface DFSOptions <T>{
 
 let visited:boolean[] = []
 
-const deepFirstSearch = <T extends object>(graph: Graph<T>, options:DFSOptions<T>): void => {
+const deepFirstSearch = <T extends object>(graph: GraphInterface<T>, options:DFSOptions<T>): void => {
 
 	const {
 		startIndex,
@@ -29,7 +27,7 @@ const deepFirstSearch = <T extends object>(graph: Graph<T>, options:DFSOptions<T
 			deepFirstSearch(graph,{...options,startIndex:nodes[i]})
 }
 
-const driverFunction = <T extends object>(graph: Graph<T>, options: DFSOptions<T>): void => {
+const driverFunction = <T extends object>(graph: GraphInterface<T>, options: DFSOptions<T>): void => {
 
 	options.startIndex = options.startIndex || 0
 
