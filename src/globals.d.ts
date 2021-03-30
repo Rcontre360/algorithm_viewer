@@ -1,5 +1,4 @@
 type GraphType = unknown
-type GraphOptionsKeys = keyof GraphOptions<GraphType>
 
 interface GraphInterface<T extends GraphType> {
 	addNode(node:T):void,
@@ -9,9 +8,4 @@ interface GraphInterface<T extends GraphType> {
 	getNodeData(node:number):T,
 	getNodeConnections(node:number):number[],
 	getNumberOfElements():number
-}
-
-interface GraphOptions<T extends GraphType>{
-  onConnect(...nodeUserArguments:T[]):void,
-  onAddNode(...nodeUserArguments: T[]): void
 }

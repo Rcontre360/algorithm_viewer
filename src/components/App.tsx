@@ -13,6 +13,12 @@ const useStyles = makeStyles((theme)=>({
 	canvasContainer:{
 		width:"100%",
 		height:"70vh",
+	},
+	buttonOn:{
+		background:theme.palette.primary.light
+	},
+	buttonOff:{
+		background:theme.palette.primary.dark
 	}
 }))
 
@@ -51,7 +57,7 @@ const App = ()=>{
 			<Button
 				onClick={()=>setAddNode(prev=>!prev)}
 				variant="contained"
-				color="primary"
+				className={addNode?classes.buttonOn:classes.buttonOff}
 			>
 				Add node
 			</Button>

@@ -19,7 +19,15 @@ module.exports = {
 			{
 				test: /\.(ts|tsx)$/,
 				exclude: /node_modules/,
-				use: ["ts-loader"],
+				use: [
+				    {
+				    	loader: 'ts-loader',
+				    	options: {
+				        	transpileOnly: true,
+				        	experimentalWatchApi: true,
+				    	},
+				    },
+				 ],
 			},
 			// {
 			// 	test: /\.(css|scss)$/,
@@ -35,7 +43,8 @@ module.exports = {
 		extensions: ['.tsx', '.ts', '.js','.html'],
 	},
 	output: {
-		path: path.resolve(__dirname, 'dist')
+		path: path.resolve(__dirname, 'dist'),
+		pathinfo: false
 	},
 	devServer: {
 		contentBase: path.join(__dirname, 'dist'),
