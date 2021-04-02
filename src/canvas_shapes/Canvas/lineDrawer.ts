@@ -1,37 +1,50 @@
-import {fabric} from "fabric"
+import {
+	fabric
+} from "fabric"
 
 class LineDrawer {
-	private static line: fabric.Line | null = null
-	private static canvas: fabric.Canvas = new fabric.Canvas("")
-	private static isDrawing: boolean = false
+	private line: fabric.Line | null = null
+	private canvas: fabric.Canvas | null = null
+	private isDrawing: boolean = false
 
-	static setCanvas(canvas:fabric.Canvas){
+	constructor(canvas: fabric.Canvas) {
+		this.setCanvas(canvas)
+	}
+
+	setCanvas = (canvas: fabric.Canvas) => {
 		this.canvas = canvas
 	}
 
-	static setDrawingEvents(){
+	setDrawingEvents = () => {
+		if (!this.canvas) return
 		this.canvas.on("mouse:down", this.addEdgesHandler)
 		this.canvas.on("mouse:move", this.drawLineHandler)
-		this.canvas.on("mouse:up", event => {
-			this.isDrawing = false
-		})
+		this.canvas.on("mouse:up", this.stopDrawing)
 	}
 
-	private static addEdgesHandler(event: fabric.IEvent) {
+	removeDrawingEvents = () => {
+		if (!this.canvas) return
+		this.canvas.off("mouse:down", this.addEdgesHandler)
+		this.canvas.off("mouse:move", this.drawLineHandler)
+		this.canvas.off("mouse:up", this.stopDrawing)
+	}
+
+	private addEdgesHandler = (event: fabric.IEvent) => {
+		if (!this.canvas)
+			return
 		const pointer = event.pointer as fabric.Point
 		const lineCoordenades = [
 			pointer.x, pointer.y, pointer.x, pointer.y
 		]
 		this.line = new fabric.Line(lineCoordenades, {
-			fill: "black",
-			stroke: "red",
-			strokeWidth: 10
+			stroke: "black",
+			strokeWidth: 3
 		})
 		this.isDrawing = true
 		this.canvas.add(this.line)
 	}
 
-	private static drawLineHandler(event: fabric.IEvent) {
+	private drawLineHandler = (event: fabric.IEvent) => {
 		if (!this.isDrawing || !this.line)
 			return
 		const pointer = event.pointer as fabric.Point
@@ -39,6 +52,13 @@ class LineDrawer {
 			x2: pointer.x,
 			y2: pointer.y
 		}).setCoords();
+		this.canvas.renderAll()
+	}
+
+	private stopDrawing = (event: fabric.IEvent) => {
+		this.isDrawing = false
+		if (this.line && this.canvas)
+			this.canvas.add(this.line)
 	}
 }
 

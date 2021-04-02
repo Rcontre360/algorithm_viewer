@@ -36,7 +36,7 @@ const App = ()=>{
 			if (addNode)
 				canvas.allowAddNode()
 			else
-				canvas.forbidAddNode()
+				canvas.forbidAddNode(true)
 		}
 	},[canvas,addNode])
 
