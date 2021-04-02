@@ -19,7 +19,6 @@ class Canvas extends fabric.Canvas implements CanvasInterface {
 
 	constructor(canvasId: string, canvasContainerId: string) {
 		super(canvasId)
-
 		const canvasContainer = document.getElementById("canvas_container") as HTMLElement;
 		const {
 			clientWidth,

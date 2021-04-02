@@ -3,8 +3,8 @@ import {
 } from "fabric"
 
 class LineDrawer {
-	private line: fabric.Line | null = null
-	private canvas: fabric.Canvas | null = null
+	private line: fabric.Line = new fabric.Line([0, 0, 0, 0])
+	private canvas: fabric.Canvas = new fabric.Canvas("")
 	private isDrawing: boolean = false
 
 	constructor(canvas: fabric.Canvas) {
@@ -30,8 +30,10 @@ class LineDrawer {
 	}
 
 	private addEdgesHandler = (event: fabric.IEvent) => {
-		if (!this.canvas)
+		if (!this.isMouseIntoNode(event))
 			return
+		console.log("down", event)
+
 		const pointer = event.pointer as fabric.Point
 		const lineCoordenades = [
 			pointer.x, pointer.y, pointer.x, pointer.y
@@ -40,14 +42,41 @@ class LineDrawer {
 			stroke: "black",
 			strokeWidth: 3
 		})
-		this.isDrawing = true
-		this.canvas.add(this.line)
+		this.isDrawing = true;
+		this.canvas.add(this.line);
+	}
+
+	private isMouseIntoNode = (event: fabric.IEvent): boolean => {
+		if (!((event.target as any) instanceof fabric.Circle))
+			return false
+		const {
+			x: mouseX,
+			y: mouseY
+		} = event.pointer as fabric.Point
+		const circle = event.target as fabric.Circle
+
+		const circleX = circle.left || 0
+		const circleY = circle.top || 0
+		const radius = circle.radius || 0
+
+		console.log(this.numberWithingRange(mouseX, circleX, radius) &&
+			this.numberWithingRange(mouseY, circleY, radius))
+
+		return (
+			this.numberWithingRange(mouseX, circleX, radius) &&
+			this.numberWithingRange(mouseY, circleY, radius)
+		)
+	}
+
+	private numberWithingRange = (number: number, point: number, errorMargin: number): boolean => {
+		return number >= point - errorMargin && number <= point + errorMargin
 	}
 
 	private drawLineHandler = (event: fabric.IEvent) => {
-		if (!this.isDrawing || !this.line)
-			return
-		const pointer = event.pointer as fabric.Point
+		if (!this.isDrawable())
+			return;
+		const pointer = event.pointer as fabric.Point;
+
 		this.line.set({
 			x2: pointer.x,
 			y2: pointer.y
@@ -55,10 +84,18 @@ class LineDrawer {
 		this.canvas.renderAll()
 	}
 
+	private isDrawable = (): boolean => Boolean(this.isDrawing && this.line && this.canvas && this.line)
+
 	private stopDrawing = (event: fabric.IEvent) => {
+		if (!this.isMouseIntoNode(event)) {
+			this.canvas.remove(this.line)
+			this.line.set({
+				stroke: "transparent"
+			})
+			this.canvas.renderAll()
+		}
+		this.line = new fabric.Line([0, 0, 0, 0])
 		this.isDrawing = false
-		if (this.line && this.canvas)
-			this.canvas.add(this.line)
 	}
 }
 
