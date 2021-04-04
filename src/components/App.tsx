@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme)=>({
 		height:"70vh",
 	},
 	buttonOn:{
-		background:theme.palette.primary.light
+		background:theme.palette.success.main
 	},
 	buttonOff:{
 		background:theme.palette.primary.dark
@@ -26,8 +26,9 @@ const useStyles = makeStyles((theme)=>({
 }))
 
 const App = ()=>{
-	const [addNode,setAddNode] = useState<boolean>(false)
 	const [canvas,setCanvas] = useState<Canvas | null>(null)
+	const [addNode,setAddNode] = useState<boolean>(false)
+	const [addEdges,setAddEdges] = useState<boolean>(false)
 	const classes = useStyles()
 
 	useEffect(()=>{
@@ -38,10 +39,10 @@ const App = ()=>{
 		if (canvas) {
 			if (addNode)
 				canvas.allowAddNode()
-			else
-				canvas.forbidAddNode(true)
+			else 
+				canvas.forbidAddNode(addEdges)
 		}
-	},[canvas,addNode])
+	},[canvas,addNode,addEdges])
 
 	return (
 	<Box
@@ -72,10 +73,17 @@ const App = ()=>{
 					})
 				)}
 				variant="contained"
+				className={addNode?classes.buttonOn:classes.buttonOff}
 			>
 				Start
 			</Button>
-			<Button>Option 3</Button>
+			<Button
+				variant="contained"
+				className={addEdges?classes.buttonOn:classes.buttonOff}
+				onClick={()=>setAddEdges(prev=>!prev)}
+			>
+				Add edges
+			</Button>
 		</Box>
 		<div 
 			id="canvas_container" 
