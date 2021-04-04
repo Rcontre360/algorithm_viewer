@@ -2,20 +2,14 @@ import {
 	fabric
 } from "fabric"
 import lineDrawer from "./lineDrawer"
+import {
+	Graph
+} from "../../algorithms"
 
-interface CanvasInterface extends fabric.Canvas {
-	allowAddNode(): void,
-		forbidAddNode(): void
-}
-
-interface lineDrawerInterface {
-	setCanvas(canvas: fabric.Canvas): void,
-		setDrawingEvent(): void
-}
-
-class Canvas extends fabric.Canvas implements CanvasInterface {
+class Canvas extends fabric.Canvas {
 	private drawingLine: boolean = false
 	private drawer: lineDrawer = new lineDrawer(this)
+	graph: Graph < fabric.Circle > = new Graph()
 
 	constructor(canvasId: string, canvasContainerId: string) {
 		super(canvasId)
@@ -36,9 +30,14 @@ class Canvas extends fabric.Canvas implements CanvasInterface {
 		this.drawer = new lineDrawer(this)
 	}
 
+	startAlgorithm = (algorithm: Function) => {
+		algorithm(this.graph)
+	}
+
 	allowAddNode = () => {
 		this.on("mouse:down", this.addNodeHandler)
 		this.drawer.removeDrawingEvents()
+		console.log(this.graph.getAllNodeConnections(), this.graph.getAllNodeData())
 	}
 
 	forbidAddNode = (allowAddEdges ? : boolean) => {
@@ -91,6 +90,7 @@ class Canvas extends fabric.Canvas implements CanvasInterface {
 			originX: "center",
 			originY: "center"
 		})
+		this.graph.addNode(circle)
 		this.add(circle)
 	}
 

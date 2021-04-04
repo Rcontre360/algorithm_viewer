@@ -1,12 +1,11 @@
-
-interface DFSOptions <T>{
-	startIndex:number,
-	handleNodeData?(nodeData:T,index?:number):void
+interface DFSOptions < T > {
+	startIndex: number,
+	handleNodeData ? (nodeData: T, index ? : number) : void
 }
 
-let visited:boolean[] = []
+let visited: boolean[] = []
 
-const deepFirstSearch = <T extends object>(graph: GraphInterface<T>, options:DFSOptions<T>): void => {
+const deepFirstSearch = < T extends object > (graph: GraphInterface < T > , options: DFSOptions < T > ): void => {
 
 	const {
 		startIndex,
@@ -18,16 +17,19 @@ const deepFirstSearch = <T extends object>(graph: GraphInterface<T>, options:DFS
 	visited[startIndex] = true
 
 	if (handleNodeData instanceof Function)
-	 	handleNodeData(graph.getNodeData(startIndex),startIndex)
+		handleNodeData(graph.getNodeData(startIndex), startIndex)
 
-	const nodes:number[] = graph.getNodeConnections(startIndex)
+	const nodes: number[] = graph.getNodeConnections(startIndex)
+	console.log(`for ${startIndex} we have ${nodes}`)
 
-	for (let i = 0; i < nodes.length;i++) 
+	for (let i = 0; i < nodes.length; i++)
 		if (!visited[nodes[i]])
-			deepFirstSearch(graph,{...options,startIndex:nodes[i]})
+			deepFirstSearch(graph, { ...options,
+				startIndex: nodes[i]
+			})
 }
 
-const driverFunction = <T extends object>(graph: GraphInterface<T>, options: DFSOptions<T>): void => {
+const driverFunction = < T extends object > (graph: GraphInterface < T > , options: DFSOptions < T > ): void => {
 
 	options.startIndex = options.startIndex || 0
 

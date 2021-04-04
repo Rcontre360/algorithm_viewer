@@ -7,7 +7,7 @@ import {
 
 class LineDrawer {
 	private line: fabric.Line = new fabric.Line([0, 0, 0, 0])
-	private canvas: Canvas | undefined = undefined
+	private canvas: Canvas | null = null
 	private draggingLineOnNode: boolean = false
 	private isDrawing: boolean = false
 
@@ -49,6 +49,7 @@ class LineDrawer {
 
 		this.isDrawing = true;
 		this.canvas!.add(this.line);
+		this.canvas!.sendToBack(this.line)
 	}
 
 	private getNodeUnderMouse = (event: fabric.IEvent): fabric.Object => {
@@ -79,14 +80,16 @@ class LineDrawer {
 			return
 		}
 
-		const lineNodeDestiny: fabric.Circle = this.canvas!.getNodeUnderMouse(event) as fabric.Circle
+		const nodeOrigin: fabric.Circle = event.target as fabric.Circle
+		const nodeDestiny: fabric.Circle = this.canvas!.getNodeUnderMouse(event) as fabric.Circle
 		this.line.set({
-			x2: lineNodeDestiny.left,
-			y2: lineNodeDestiny.top,
+			x2: nodeDestiny.left,
+			y2: nodeDestiny.top,
 			lockMovementX: true,
 			lockMovementY: true,
 		}).setCoords();
-		this.canvas!.bringToFront(lineNodeDestiny)
+
+		this.canvas!.graph.connectNodes(nodeOrigin, nodeDestiny)
 		this.canvas!.renderAll()
 		this.line = new fabric.Line([0, 0, 0, 0])
 		this.isDrawing = false
