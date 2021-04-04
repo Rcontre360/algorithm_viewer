@@ -1,79 +1,58 @@
 import {
 	fabric
 } from "fabric"
+import {
+	Canvas
+} from "./index"
 
 class LineDrawer {
 	private line: fabric.Line = new fabric.Line([0, 0, 0, 0])
-	private canvas: fabric.Canvas = new fabric.Canvas("")
+	private canvas: Canvas | undefined = undefined
 	private draggingLineOnNode: boolean = false
 	private isDrawing: boolean = false
 
-	constructor(canvas: fabric.Canvas) {
+	constructor(canvas: Canvas) {
 		this.setCanvas(canvas)
 	}
 
-	setCanvas = (canvas: fabric.Canvas) => {
+	setCanvas = (canvas: Canvas) => {
 		this.canvas = canvas
 	}
 
 	setDrawingEvents = () => {
-		if (!this.canvas) return
-		this.canvas.on("mouse:down", this.addEdgesHandler)
-		this.canvas.on("mouse:move", this.drawLineHandler)
-		this.canvas.on("mouse:up", this.stopDrawing)
+		this.canvas!.on("mouse:down", this.addEdgesHandler)
+		this.canvas!.on("mouse:move", this.drawLineHandler)
+		this.canvas!.on("mouse:up", this.stopDrawing)
 	}
 
 	removeDrawingEvents = () => {
-		if (!this.canvas) return
-		this.canvas.off("mouse:down", this.addEdgesHandler)
-		this.canvas.off("mouse:move", this.drawLineHandler)
-		this.canvas.off("mouse:up", this.stopDrawing)
+		this.canvas!.off("mouse:down", this.addEdgesHandler)
+		this.canvas!.off("mouse:move", this.drawLineHandler)
+		this.canvas!.off("mouse:up", this.stopDrawing)
 	}
 
 	private addEdgesHandler = (event: fabric.IEvent) => {
-		if (!this.isMouseIntoNode(event))
+		if (!this.canvas!.isMouseIntoNode(event))
 			return
-		const pointer = event.pointer as fabric.Point
+
+		const pointer = event.target as fabric.Object
 		const lineCoordenades = [
-			pointer.x, pointer.y, pointer.x, pointer.y
+			pointer.left || 0,
+			pointer.top || 0,
+			pointer.left || 0,
+			pointer.top || 0
 		]
 		this.line = new fabric.Line(lineCoordenades, {
 			stroke: "black",
 			strokeWidth: 3
 		})
+
 		this.isDrawing = true;
-		this.canvas.add(this.line);
+		this.canvas!.add(this.line);
 	}
 
-	private isMouseIntoNode = (event: fabric.IEvent): boolean => {
-		const originNode = event.target
-		let isIntoNode = false
-		if (!originNode) return isIntoNode
-		if (!this.isDrawing) return !isIntoNode
-
-		this.canvas.forEachObject(object => {
-			console.log("object", object)
-			if (originNode === object || !(object instanceof fabric.Circle))
-				return
-			if (object instanceof fabric.Circle) {
-				if (this.line.intersectsWithObject(object))
-					isIntoNode = true
-			}
-		})
-
-		return isIntoNode
-		//INTERSECTION
-		// 	function onChange(options) {
-		// 	options.target.setCoords();
-		// 	canvas.forEachObject(function(obj) {
-		// 		if (obj === options.target) return;
-		// 		obj.set('opacity', options.target.intersectsWithObject(obj) ? 0.5 : 1);
-		// 	});
-		// }
-	}
-
-	private numberWithingRange = (number: number, point: number, errorMargin: number): boolean => {
-		return number >= point - errorMargin && number <= point + errorMargin
+	private getNodeUnderMouse = (event: fabric.IEvent): fabric.Object => {
+		return new fabric.Object({})
 	}
 
 	private drawLineHandler = (event: fabric.IEvent) => {
@@ -85,19 +64,30 @@ class LineDrawer {
 			x2: pointer.x,
 			y2: pointer.y
 		}).setCoords();
-		this.canvas.renderAll()
+		this.canvas!.renderAll()
 	}
 
 	private isDrawable = (): boolean => Boolean(this.isDrawing && this.line && this.canvas && this.line)
 
 	private stopDrawing = (event: fabric.IEvent) => {
-		if (!this.isMouseIntoNode(event)) {
-			this.canvas.remove(this.line)
+		if (!this.canvas!.isMouseIntoNode(event)) {
+			this.canvas!.remove(this.line)
 			this.line.set({
-				stroke: "transparent"
+				stroke: "transparent",
 			})
-			this.canvas.renderAll()
+			this.canvas!.renderAll()
+			return
 		}
+
+		const lineNodeDestiny: fabric.Circle = this.canvas!.getNodeUnderMouse(event) as fabric.Circle
+		this.line.set({
+			x2: lineNodeDestiny.left,
+			y2: lineNodeDestiny.top,
+			lockMovementX: true,
+			lockMovementY: true,
+		}).setCoords();
+		this.canvas!.bringToFront(lineNodeDestiny)
+		this.canvas!.renderAll()
 		this.line = new fabric.Line([0, 0, 0, 0])
 		this.isDrawing = false
 	}
