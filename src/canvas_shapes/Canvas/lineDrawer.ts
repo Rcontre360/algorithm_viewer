@@ -5,6 +5,7 @@ import {
 class LineDrawer {
 	private line: fabric.Line = new fabric.Line([0, 0, 0, 0])
 	private canvas: fabric.Canvas = new fabric.Canvas("")
+	private draggingLineOnNode: boolean = false
 	private isDrawing: boolean = false
 
 	constructor(canvas: fabric.Canvas) {
@@ -32,8 +33,6 @@ class LineDrawer {
 	private addEdgesHandler = (event: fabric.IEvent) => {
 		if (!this.isMouseIntoNode(event))
 			return
-		console.log("down", event)
-
 		const pointer = event.pointer as fabric.Point
 		const lineCoordenades = [
 			pointer.x, pointer.y, pointer.x, pointer.y
@@ -47,25 +46,30 @@ class LineDrawer {
 	}
 
 	private isMouseIntoNode = (event: fabric.IEvent): boolean => {
-		if (!((event.target as any) instanceof fabric.Circle))
-			return false
-		const {
-			x: mouseX,
-			y: mouseY
-		} = event.pointer as fabric.Point
-		const circle = event.target as fabric.Circle
+		const originNode = event.target
+		let isIntoNode = false
+		if (!originNode) return isIntoNode
+		if (!this.isDrawing) return !isIntoNode
 
-		const circleX = circle.left || 0
-		const circleY = circle.top || 0
-		const radius = circle.radius || 0
+		this.canvas.forEachObject(object => {
+			console.log("object", object)
+			if (originNode === object || !(object instanceof fabric.Circle))
+				return
+			if (object instanceof fabric.Circle) {
+				if (this.line.intersectsWithObject(object))
+					isIntoNode = true
+			}
+		})
 
-		console.log(this.numberWithingRange(mouseX, circleX, radius) &&
-			this.numberWithingRange(mouseY, circleY, radius))
-
-		return (
-			this.numberWithingRange(mouseX, circleX, radius) &&
-			this.numberWithingRange(mouseY, circleY, radius)
-		)
+		return isIntoNode
+		//INTERSECTION
+		// 	function onChange(options) {
+		// 	options.target.setCoords();
+		// 	canvas.forEachObject(function(obj) {
+		// 		if (obj === options.target) return;
+		// 		obj.set('opacity', options.target.intersectsWithObject(obj) ? 0.5 : 1);
+		// 	});
+		// }
 	}
 
 	private numberWithingRange = (number: number, point: number, errorMargin: number): boolean => {
