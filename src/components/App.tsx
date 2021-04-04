@@ -55,7 +55,7 @@ const App = ()=>{
 			variant="h3"
 			component="h1"
 		>
-			Algorithm Previewer
+			Algorithm Viewer
 		</Typography>
 		<Box>
 			<Button
