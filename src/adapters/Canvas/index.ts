@@ -3,13 +3,18 @@ import {
 } from "fabric"
 import lineDrawer from "./lineDrawer"
 import {
-	Graph
+	colorGraphNode
+} from '../GraphNode'
+import {
+	GraphCase,
+	DFS
 } from "../../core"
 
 class Canvas extends fabric.Canvas {
+
 	private drawingLine: boolean = false
 	private drawer: lineDrawer = new lineDrawer(this)
-	graph: Graph < fabric.Circle > = new Graph()
+	graph: GraphCase < fabric.Circle > | undefined;
 
 	constructor(canvasId: string, canvasContainerId: string) {
 		super(canvasId)
@@ -27,23 +32,26 @@ class Canvas extends fabric.Canvas {
 			width: clientWidth,
 			height: clientHeight
 		})
+
+		this.graph = new GraphCase(DFS)
 		this.drawer = new lineDrawer(this)
 	}
 
-	startAlgorithm = (algorithm: Function) => {
-		algorithm(this.graph)
+	startAlgorithm = (options: unknown) => {
+		const algorithmData: unknown = this.graph!.startAlgorithm(options)
+		console.log('algorithmData', algorithmData)
 	}
 
 	allowAddNode = () => {
+		this.graph!.canAddNode = true
 		this.on("mouse:down", this.addNodeHandler)
 		this.drawer.removeDrawingEvents()
-		console.log(this.graph.getAllNodeConnections(), this.graph.getAllNodeData())
 	}
 
-	forbidAddNode = (allowAddEdges ? : boolean) => {
+	allowAddEdge = () => {
+		this.graph!.canAddEdge = true
 		this.off("mouse:down", this.addNodeHandler)
-		if (allowAddEdges && this.drawer)
-			this.drawer.setDrawingEvents()
+		this.drawer.setDrawingEvents()
 	}
 
 	isMouseIntoNode = (event: fabric.IEvent): boolean => {
@@ -79,6 +87,8 @@ class Canvas extends fabric.Canvas {
 	}
 
 	private addNodeHandler = (event: fabric.IEvent) => {
+		if (!this.graph!.canAddNode)
+			return;
 		const pointer = event.pointer as fabric.Point
 		const circle = new fabric.Circle({
 			fill: "red",
@@ -90,7 +100,7 @@ class Canvas extends fabric.Canvas {
 			originX: "center",
 			originY: "center"
 		})
-		this.graph.addNode(circle)
+		this.graph!.addNode(circle)
 		this.add(circle)
 	}
 

@@ -25,23 +25,14 @@ const useStyles = makeStyles((theme)=>({
 }))
 
 const App = ()=>{
-	const [canvas,setCanvas] = useState<Canvas | null>(null)
+	const [canvas,setCanvas] = useState<Canvas | null>(undefined)
 	const [addNode,setAddNode] = useState<boolean>(false)
 	const [addEdges,setAddEdges] = useState<boolean>(false)
 	const classes = useStyles()
 
 	useEffect(()=>{
 		setCanvas(new Canvas("main_canvas","canvas_container"))
-	},[])
-
-	useEffect(()=>{
-		if (canvas) {
-			if (addNode)
-				canvas.allowAddNode()
-			else 
-				canvas.forbidAddNode(addEdges)
-		}
-	},[canvas,addNode,addEdges])
+	},[]);
 
 	return (
 	<Box
@@ -58,18 +49,14 @@ const App = ()=>{
 		</Typography>
 		<Box>
 			<Button
-				onClick={()=>setAddNode(prev=>!prev)}
+				onClick={()=>canvas!.allowAddNode()}
 				variant="contained"
 				className={addNode?classes.buttonOn:classes.buttonOff}
 			>
 				Add node
 			</Button>
 			<Button
-				onClick={()=>canvas!.startAlgorithm(
-					(graph:GraphInterface<fabric.Circle>)=>{
-						console.log(DFS(graph))
-					}
-				)}
+				onClick={()=>canvas!.startAlgorithm()}
 				variant="contained"
 				className={addNode?classes.buttonOn:classes.buttonOff}
 			>
@@ -78,7 +65,7 @@ const App = ()=>{
 			<Button
 				variant="contained"
 				className={addEdges?classes.buttonOn:classes.buttonOff}
-				onClick={()=>setAddEdges(prev=>!prev)}
+				onClick={()=>canvas!.allowAddEdge()}
 			>
 				Add edges
 			</Button>

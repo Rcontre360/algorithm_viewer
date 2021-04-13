@@ -1,1 +1,2 @@
-export * from "./data_structures/Graph"
+export * from "./algorithms"
+export * from './useCases'

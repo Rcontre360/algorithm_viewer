@@ -89,7 +89,7 @@ class LineDrawer {
 			lockMovementY: true,
 		}).setCoords();
 
-		this.canvas!.graph.connectNodes(nodeOrigin, nodeDestiny)
+		this.canvas!.graph!.addEdge(nodeOrigin, nodeDestiny)
 		this.canvas!.renderAll()
 		this.line = new fabric.Line([0, 0, 0, 0])
 		this.isDrawing = false

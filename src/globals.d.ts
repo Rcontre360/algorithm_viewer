@@ -1,8 +1,12 @@
 type GraphType = unknown
 
+interface GraphAlgorithm < Args, Ret > {
+	(graph: GraphInterface, args: any): Ret;
+}
+
 interface GraphInterface < T extends GraphType > {
 	addNode(node: T): void,
-	connectNodes(src: number, dest: number): void,
+	connectNodes(src: number | T, dest: number | T): void,
 	deleteNode(node: number): void,
 
 	getNodeData(node: number): T,
