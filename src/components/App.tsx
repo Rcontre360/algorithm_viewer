@@ -7,10 +7,9 @@ import Box from '@material-ui/core/Box';
 
 import {fabric} from "fabric"
 import { useSelector } from 'react-redux';
-import {fabric} from "fabric"
-import {Canvas} from "../canvas_shapes"
-import {DFS} from "../algorithms"
-import {colorGraphNode} from "../canvas_shapes"
+import {Canvas} from "../adapters"
+import {DFS} from "../core/algorithms"
+import {colorGraphNode} from "../adapters"
 
 const useStyles = makeStyles((theme)=>({
 	canvasContainer:{
@@ -67,10 +66,9 @@ const App = ()=>{
 			</Button>
 			<Button
 				onClick={()=>canvas!.startAlgorithm(
-					(graph:GraphInterface<fabric.Circle>)=>DFS(graph,{
-						handleNodeData:colorGraphNode(canvas as Canvas),
-						startIndex:0,
-					})
+					(graph:GraphInterface<fabric.Circle>)=>{
+						console.log(DFS(graph))
+					}
 				)}
 				variant="contained"
 				className={addNode?classes.buttonOn:classes.buttonOff}

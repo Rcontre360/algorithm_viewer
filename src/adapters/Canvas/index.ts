@@ -4,7 +4,7 @@ import {
 import lineDrawer from "./lineDrawer"
 import {
 	Graph
-} from "../../algorithms"
+} from "../../core"
 
 class Canvas extends fabric.Canvas {
 	private drawingLine: boolean = false

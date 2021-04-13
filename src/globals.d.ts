@@ -11,3 +11,9 @@ interface GraphInterface < T extends GraphType > {
 	getAllNodeConnections(): number[][],
 	getAllNodeData(): T[]
 }
+
+interface GraphReturn {
+	forward: boolean;
+	from: number | undefined;
+	to: number | undefined;
+}
