@@ -10,6 +10,63 @@ import {
 	DFS
 } from "../../core"
 
+class BaseCanvas extends fabric.Canvas {
+
+	constructor(canvasId: string, canvasContainerId: string) {
+		super(canvasId)
+		const canvasContainer = document.getElementById("canvas_container") as HTMLElement;
+
+		if (!canvasContainer)
+			return
+
+		const {
+			clientWidth,
+			clientHeight
+		} = canvasContainer
+
+		this.setDimensions({
+			width: clientWidth,
+			height: clientHeight
+		})
+
+		//this.drawer = new lineDrawer(this)
+	}
+
+	protected isMouseIntoObject = (event: fabric.IEvent, instance: "Circle" | "Object" | "Line" | "Rect"): fabric.Object | null => {
+
+		let objectUnderMouse = null
+		const pointer = event.pointer as fabric.Point
+		let mockCircle: fabric.Object;
+
+		if (instance === 'Line')
+			mockCircle = new fabric[instance]([pointer.x, pointer.y, pointer.x, pointer.y])
+		else
+			mockCircle = new fabric[instance]({
+				top: pointer.y,
+				left: pointer.x,
+			})
+
+		this.getObjectsIntersect(mockCircle).forEach(obj => {
+			if (obj instanceof fabric[instance])
+				objectUnderMouse = obj
+		})
+
+		return objectUnderMouse
+	}
+
+	private getObjectsIntersect = (object: fabric.Object, condition ? : Function): fabric.Object[] => {
+		const objIntersect: fabric.Object[] = []
+
+		this.forEachObject(obj => {
+			if (object.intersectsWithObject(obj)) {
+				objIntersect.push(obj)
+			}
+		})
+
+		return objIntersect
+	}
+}
+
 class Canvas extends fabric.Canvas {
 
 	private drawingLine: boolean = false
@@ -35,11 +92,23 @@ class Canvas extends fabric.Canvas {
 
 		this.graph = new GraphCase(DFS)
 		this.drawer = new lineDrawer(this)
+
 	}
 
 	startAlgorithm = (options: unknown) => {
-		const algorithmData: unknown = this.graph!.startAlgorithm(options)
-		console.log('algorithmData', algorithmData)
+		const algorithmData = this.graph!.startAlgorithm(options) as GraphReturn[]
+		algorithmData.forEach((obj: any, index) => {
+			if (obj.from >= 0)
+				setTimeout(() => {
+					const circle = this.graph!.getNodeData(obj.from);
+					circle.setOptions({
+						strokeWidth: 5,
+						fill: 'blue',
+						stroke: 'orange'
+					})
+					this.renderAll()
+				}, 1000 * index)
+		})
 	}
 
 	allowAddNode = () => {
@@ -75,7 +144,6 @@ class Canvas extends fabric.Canvas {
 		const mockCircle = new fabric.Circle({
 			top: pointer.y,
 			left: pointer.x,
-			radius: 1,
 		})
 
 		this.forEachObject(object => {

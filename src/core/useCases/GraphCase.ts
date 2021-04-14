@@ -60,6 +60,10 @@ export class GraphCase < T extends GraphType > {
 		}
 	}
 
+	getNodeData(index: number): T {
+		return this.graph.getNodeData(index)
+	}
+
 	startAlgorithm(options: unknown) {
 		return this.algorithm!(this.graph, options)
 	}
