@@ -8,7 +8,7 @@ type GraphOptionsKeys = keyof GraphOptions < GraphType >
 class Graph < T extends GraphType > implements GraphInterface < T > {
 	private nodes: number[][] = []
 	private nodeData: T[] = []
-	private numberOfElements: number = 0
+	private size: number = 0
 	private options: GraphOptions < T > = {
 		onConnect: () => 1,
 		onAddNode: () => 1
@@ -16,10 +16,9 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 
 	constructor(nodes ? : number[][], nodeData ? : T[], options ? : GraphOptions < T > ) {
 		if (nodes && nodeData) {
-			this.numberOfElements = nodes.length
 			this.nodes = [...nodes]
 			this.nodeData = [...nodeData]
-
+			this.size = nodeData.length
 			if (options)
 				this.options = { ...this.options,
 					...options
@@ -37,7 +36,7 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 
 	addNode(nodeAdded: T): void {
 		this.applyOptions("onAddNode", nodeAdded)
-		this.numberOfElements++;
+		this.size++;
 		this.nodeData.push(nodeAdded)
 		this.nodes.push([])
 	}
@@ -55,7 +54,7 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 	}
 
 	deleteNode(nodeDeleted: number): void {
-		if (this.numberOfElements <= nodeDeleted)
+		if (this.size <= nodeDeleted)
 			return
 		const filterFunction = (nodeConnections: number[] | T | number, index: number) => index !== nodeDeleted
 
@@ -65,11 +64,12 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 				this.nodes[index] = nodeConnections.filter(filterFunction)
 		})
 		this.nodeData = this.nodeData.filter(filterFunction)
-
-		this.numberOfElements--
+		this.size--
 	}
 
 	getNodeData(nodeIndex: number): T {
+		if (nodeIndex < 0 || nodeIndex >= this.size)
+			throw new Error('You cannot access nodes out of scope')
 		return this.nodeData[nodeIndex]
 	}
 
@@ -78,7 +78,7 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 	}
 
 	getNumberOfElements(): number {
-		return this.numberOfElements
+		return this.size
 	}
 
 	getAllNodeData(): T[] {

@@ -19,7 +19,7 @@ const deepFirstSearch = < T extends object > (graph: GraphInterface < T > , opti
 	visited[startIndex] = true
 	DFSreturn.push({
 		forward: true,
-		from: previousIndex,
+		from: previousIndex || -1,
 		to: startIndex
 	})
 
@@ -35,7 +35,7 @@ const deepFirstSearch = < T extends object > (graph: GraphInterface < T > , opti
 	DFSreturn.push({
 		forward: false,
 		from: startIndex,
-		to: previousIndex
+		to: previousIndex || -1
 	})
 }
 

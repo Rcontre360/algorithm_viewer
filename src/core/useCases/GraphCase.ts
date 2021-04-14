@@ -1,6 +1,4 @@
-import {
-	Graph
-} from '../data_structures/Graph'
+import { Graph } from '../data_structures/Graph'
 
 export class GraphCase < T extends GraphType > {
 
@@ -12,7 +10,7 @@ export class GraphCase < T extends GraphType > {
 	algorithm: GraphAlgorithm < unknown,
 	unknown > | undefined;
 
-	constructor(algorithm ? : GraphAlgorithm < unknown, unknown > , onActions ? : {
+	constructor(algorithm ? : GraphAlgorithm < unknown, GraphReturn[] > , onActions ? : {
 		onAddNode ? : Function,
 		onAddEdge ? : Function
 	}) {
@@ -44,7 +42,7 @@ export class GraphCase < T extends GraphType > {
 		this._canAddNode = value
 	}
 
-	addNode(object: T) {
+	addNode = (object: T) => {
 		if (this._canAddNode) {
 			if (this.onAddNode)
 				this.onAddNode()
@@ -52,7 +50,7 @@ export class GraphCase < T extends GraphType > {
 		}
 	}
 
-	addEdge(src: number | T, dest: number | T) {
+	addEdge = (src: number | T, dest: number | T) => {
 		if (this._canAddEdge) {
 			if (this.onAddEdge)
 				this.onAddEdge()
@@ -60,12 +58,26 @@ export class GraphCase < T extends GraphType > {
 		}
 	}
 
-	getNodeData(index: number): T {
+	getNodeData = (index: number): T => {
 		return this.graph.getNodeData(index)
 	}
 
-	startAlgorithm(options: unknown) {
-		return this.algorithm!(this.graph, options)
+	startAlgorithm = (options ? : unknown) => {
+		interface AlgorithmCaseReturn {
+			from: T | number;
+			to: T | number;
+			forward: boolean
+		}
+		const algorithm = this.algorithm!(this.graph, options) as GraphReturn[]
+
+		return algorithm.map(obj => {
+			const newObject = { ...obj } as AlgorithmCaseReturn
+			if (obj.from >= 0)
+				newObject.from = this.graph.getNodeData(obj.from)
+			if (obj.to >= 0)
+				newObject.to = this.graph.getNodeData(obj.to)
+			return newObject
+		})
 	}
 
 };

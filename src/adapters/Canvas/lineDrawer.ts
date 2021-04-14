@@ -82,6 +82,7 @@ class LineDrawer {
 
 		const nodeOrigin: fabric.Circle = event.target as fabric.Circle
 		const nodeDestiny: fabric.Circle = this.canvas!.getNodeUnderMouse(event) as fabric.Circle
+
 		this.line.set({
 			x2: nodeDestiny.left,
 			y2: nodeDestiny.top,

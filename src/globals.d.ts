@@ -18,6 +18,6 @@ interface GraphInterface < T extends GraphType > {
 
 interface GraphReturn {
 	forward: boolean;
-	from: number | undefined;
-	to: number | undefined;
+	from: number | -1;
+	to: number | -1;
 }

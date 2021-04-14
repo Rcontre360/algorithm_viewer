@@ -1,14 +1,6 @@
-import {
-	fabric
-} from "fabric"
+import { fabric } from "fabric"
 import lineDrawer from "./lineDrawer"
-import {
-	colorGraphNode
-} from '../GraphNode'
-import {
-	GraphCase,
-	DFS
-} from "../../core"
+import { GraphCase, DFS } from "../../core"
 
 class BaseCanvas extends fabric.Canvas {
 
@@ -32,82 +24,142 @@ class BaseCanvas extends fabric.Canvas {
 		//this.drawer = new lineDrawer(this)
 	}
 
-	protected isMouseIntoObject = (event: fabric.IEvent, instance: "Circle" | "Object" | "Line" | "Rect"): fabric.Object | null => {
+	protected isMouseIntoObject = (event: fabric.IEvent, instance: "Circle" | "Object" | "Line" | "Rect"): fabric.Object | undefined => {
 
-		let objectUnderMouse = null
 		const pointer = event.pointer as fabric.Point
-		let mockCircle: fabric.Object;
+		let mockOject: fabric.Object;
 
 		if (instance === 'Line')
-			mockCircle = new fabric[instance]([pointer.x, pointer.y, pointer.x, pointer.y])
+			mockOject = new fabric[instance]([pointer.x, pointer.y, pointer.x, pointer.y])
 		else
-			mockCircle = new fabric[instance]({
+			mockOject = new fabric[instance]({
 				top: pointer.y,
 				left: pointer.x,
 			})
 
-		this.getObjectsIntersect(mockCircle).forEach(obj => {
-			if (obj instanceof fabric[instance])
-				objectUnderMouse = obj
-		})
+		const objectUnderMouse = this.getObjectsIntersect(mockOject,
+			(obj: fabric.Object) => obj instanceof fabric[instance]
+		)
 
-		return objectUnderMouse
+		return objectUnderMouse[0]
 	}
 
 	private getObjectsIntersect = (object: fabric.Object, condition ? : Function): fabric.Object[] => {
+
 		const objIntersect: fabric.Object[] = []
 
 		this.forEachObject(obj => {
 			if (object.intersectsWithObject(obj)) {
-				objIntersect.push(obj)
+				if (condition) {
+					if (condition(obj))
+						objIntersect.push(obj)
+				} else {
+					objIntersect.push(obj)
+				}
 			}
 		})
 
 		return objIntersect
 	}
+
 }
 
-class Canvas extends fabric.Canvas {
+interface IGraphCanvasArgs {
+	canvasId: string;
+	containerId: string;
+	nodeStyles: INodeStyles;
+	edgeStyles: IEdgeStyles
+}
+
+interface INodeStyles {
+	unactive: fabric.ICircleOptions;
+	active: fabric.ICircleOptions;
+	visited: fabric.ICircleOptions;
+}
+
+interface IEdgeStyles {
+	unactive: fabric.ILineOptions;
+	active: fabric.ICircleOptions;
+	visited: fabric.ICircleOptions;
+}
+
+const defaultNodeStyles: INodeStyles = {
+	unactive: {
+		fill: "red",
+		radius: 20,
+		lockMovementX: true,
+		lockMovementY: true,
+		originX: "center",
+		originY: "center",
+	},
+	active: {
+		fill: "red",
+		radius: 20,
+		lockMovementX: true,
+		lockMovementY: true,
+		originX: "center",
+		originY: "center",
+	},
+	visited: {
+		fill: "red",
+		radius: 20,
+		lockMovementX: true,
+		lockMovementY: true,
+		originX: "center",
+		originY: "center",
+	}
+}
+
+const defaultEdgeStyles: IEdgeStyles = {
+	unactive: {
+		stroke: "black",
+		strokeWidth: 3
+	},
+	active: {
+		stroke: "black",
+		strokeWidth: 3
+	},
+	visited: {
+		stroke: "black",
+		strokeWidth: 3
+	}
+}
+
+class GraphCanvas extends BaseCanvas {
 
 	private drawingLine: boolean = false
 	private drawer: lineDrawer = new lineDrawer(this)
+	private nodeStyles: INodeStyles = defaultNodeStyles
+	private edgeStyles: IEdgeStyles = defaultEdgeStyles
 	graph: GraphCase < fabric.Circle > | undefined;
 
-	constructor(canvasId: string, canvasContainerId: string) {
-		super(canvasId)
-		const canvasContainer = document.getElementById("canvas_container") as HTMLElement;
-
-		if (!canvasContainer)
-			return
-
-		const {
-			clientWidth,
-			clientHeight
-		} = canvasContainer
-
-		this.setDimensions({
-			width: clientWidth,
-			height: clientHeight
-		})
-
+	constructor(canvasOptions: IGraphCanvasArgs) {
+		super(canvasOptions.canvasId, canvasOptions.containerId)
 		this.graph = new GraphCase(DFS)
 		this.drawer = new lineDrawer(this)
-
+		if (canvasOptions.nodeStyles)
+			this.nodeStyles = canvasOptions.nodeStyles
+		if (canvasOptions.edgeStyles)
+			this.edgeStyles = canvasOptions.edgeStyles
 	}
 
-	startAlgorithm = (options: unknown) => {
-		const algorithmData = this.graph!.startAlgorithm(options) as GraphReturn[]
-		algorithmData.forEach((obj: any, index) => {
-			if (obj.from >= 0)
-				setTimeout(() => {
-					const circle = this.graph!.getNodeData(obj.from);
-					circle.setOptions({
-						strokeWidth: 5,
-						fill: 'blue',
-						stroke: 'orange'
-					})
-					this.renderAll()
-				}, 1000 * index)
+	startAlgorithm = (options ? : unknown) => {
+		const algorithmData = this.graph!.startAlgorithm(options)
+		algorithmData.forEach((action, i) => {
+			setTimeout(() => {
+
+				if (action.forward) {
+					(action.to as fabric.Circle).set(this.nodeStyles.active)
+				} else {
+					const style = this.nodeStyles.visited
+					if (action.from !== -1)
+						(action.from as fabric.Circle).set(style)
+					else
+						(action.to as fabric.Circle).set(style)
+				}
+
+				this.renderAll()
+			}, 800 * i)
 		})
 	}
 
@@ -124,56 +176,35 @@ class Canvas extends fabric.Canvas {
 	}
 
 	isMouseIntoNode = (event: fabric.IEvent): boolean => {
-		let isIntoNode = false
-		this.handleObjectsUnderMouse(event, (object: fabric.Object) => {
-			isIntoNode = object instanceof fabric.Circle
-		})
-		return isIntoNode
+		return Boolean(this.isMouseIntoObject(event, 'Circle'))
 	}
 
-	getNodeUnderMouse = (event: fabric.IEvent): fabric.Circle | null => {
-		let nodeUnderMouse = null
-		this.handleObjectsUnderMouse(event, (object: fabric.Object) => {
-			nodeUnderMouse = object
-		})
-		return nodeUnderMouse
-	}
-
-	private handleObjectsUnderMouse = (event: fabric.IEvent, handler: Function): void => {
-		const pointer = event.pointer as fabric.Point
-		const mockCircle = new fabric.Circle({
-			top: pointer.y,
-			left: pointer.x,
-		})
-
-		this.forEachObject(object => {
-			if (object instanceof fabric.Circle) {
-				if (mockCircle.intersectsWithObject(object))
-					handler(object)
-			}
-		})
+	getNodeUnderMouse = (event: fabric.IEvent): fabric.Circle | undefined => {
+		const test = this.isMouseIntoObject(event, 'Circle') as fabric.Circle | undefined
+		return test;
 	}
 
 	private addNodeHandler = (event: fabric.IEvent) => {
 		if (!this.graph!.canAddNode)
 			return;
+
 		const pointer = event.pointer as fabric.Point
-		const circle = new fabric.Circle({
-			fill: "red",
-			radius: 20,
+		const circle = new fabric.Circle(this.nodeStyles.unactive)
+		circle.set({
 			top: pointer.y,
-			left: pointer.x,
-			lockMovementX: true,
-			lockMovementY: true,
-			originX: "center",
-			originY: "center"
+			left: pointer.x
 		})
 		this.graph!.addNode(circle)
 		this.add(circle)
 	}
-
 }
 
+
 export {
-	Canvas
+	GraphCanvas as Canvas,
+}
+
+export type {
+	INodeStyles,
+	IEdgeStyles,
 }

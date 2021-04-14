@@ -1,12 +1,13 @@
 import React,{useState,useEffect} from "react"
+import { fabric } from "fabric"
+import { useSelector } from 'react-redux';
 import { applyMiddleware, createStore } from 'redux'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import {makeStyles} from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 
-import {fabric} from "fabric"
-import { useSelector } from 'react-redux';
+import {nodeStyles,edgeStyles} from './shape_styles'
 import {Canvas} from "../adapters"
 import {DFS} from "../core/algorithms"
 import {colorGraphNode} from "../adapters"
@@ -25,13 +26,18 @@ const useStyles = makeStyles((theme)=>({
 }))
 
 const App = ()=>{
-	const [canvas,setCanvas] = useState<Canvas | null>(undefined)
+	const [canvas,setCanvas] = useState<Canvas | undefined>(undefined)
 	const [addNode,setAddNode] = useState<boolean>(false)
 	const [addEdges,setAddEdges] = useState<boolean>(false)
 	const classes = useStyles()
 
 	useEffect(()=>{
-		setCanvas(new Canvas("main_canvas","canvas_container"))
+		setCanvas(new Canvas({
+			canvasId:"main_canvas",
+			containerId:"canvas_container",
+			nodeStyles,
+			edgeStyles
+		}))
 	},[]);
 
 	return (
