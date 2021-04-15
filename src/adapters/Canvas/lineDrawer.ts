@@ -5,11 +5,18 @@ import {
 	Canvas
 } from "./index"
 
+interface ILineDrawn {
+	nodeSrc: number;
+	nodeDest: number;
+	line: fabric.Line;
+}
+
 class LineDrawer {
 	private line: fabric.Line = new fabric.Line([0, 0, 0, 0])
-	private canvas: Canvas | null = null
-	private draggingLineOnNode: boolean = false
-	private isDrawing: boolean = false
+	private canvas: Canvas | null = null;
+	private draggingLineOnNode: boolean = false;
+	private isDrawing: boolean = false;
+	readonly lines: fabric.Line[] = [];
 
 	constructor(canvas: Canvas) {
 		this.setCanvas(canvas)
@@ -90,6 +97,7 @@ class LineDrawer {
 			lockMovementY: true,
 		}).setCoords();
 
+		this.lines.push(this.line)
 		this.canvas!.graph!.addEdge(nodeOrigin, nodeDestiny)
 		this.canvas!.renderAll()
 		this.line = new fabric.Line([0, 0, 0, 0])

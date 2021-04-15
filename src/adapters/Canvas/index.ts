@@ -145,17 +145,23 @@ class GraphCanvas extends BaseCanvas {
 
 	startAlgorithm = (options ? : unknown) => {
 		const algorithmData = this.graph!.startAlgorithm(options)
+		const lines = this.drawer.lines
 		algorithmData.forEach((action, i) => {
 			setTimeout(() => {
 
 				if (action.forward) {
-					(action.to as fabric.Circle).set(this.nodeStyles.active)
+					(action.toData as fabric.Circle).set(this.nodeStyles.active)
+					if (action.from !== -1)
+						lines[action.edgeIndex].set(this.edgeStyles.active)
 				} else {
 					const style = this.nodeStyles.visited
-					if (action.from !== -1)
-						(action.from as fabric.Circle).set(style)
-					else
-						(action.to as fabric.Circle).set(style)
+					if (action.from !== -1) {
+						(action.fromData as fabric.Circle).set(style)
+					} else {
+						(action.toData as fabric.Circle).set(style)
+					}
+					if (action.to !== -1)
+						lines[action.edgeIndex].set(this.edgeStyles.visited)
 				}
 
 				this.renderAll()

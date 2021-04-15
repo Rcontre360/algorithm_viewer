@@ -1,5 +1,11 @@
 import { Graph } from '../data_structures/Graph'
 
+interface AlgorithmCaseReturn < T > extends GraphReturn {
+	fromData: T;
+	toData: T;
+	edgeIndex: number;
+}
+
 export class GraphCase < T extends GraphType > {
 
 	private onAddNode: Function | undefined;
@@ -63,21 +69,29 @@ export class GraphCase < T extends GraphType > {
 	}
 
 	startAlgorithm = (options ? : unknown) => {
-		interface AlgorithmCaseReturn {
-			from: T | number;
-			to: T | number;
-			forward: boolean
-		}
 		const algorithm = this.algorithm!(this.graph, options) as GraphReturn[]
+		const edges = this.graph.getEdges()
 
 		return algorithm.map(obj => {
-			const newObject = { ...obj } as AlgorithmCaseReturn
+			const newObject = { ...obj } as AlgorithmCaseReturn < T > ;
+
 			if (obj.from >= 0)
-				newObject.from = this.graph.getNodeData(obj.from)
+				newObject.fromData = this.graph.getNodeData(obj.from)
+
 			if (obj.to >= 0)
-				newObject.to = this.graph.getNodeData(obj.to)
+				newObject.toData = this.graph.getNodeData(obj.to)
+
+			if (obj.from >= 0 && obj.to >= 0)
+				newObject.edgeIndex = edges.findIndex(edge => {
+					const test = this.isRightEdge({ ...edge }, obj)
+					return test
+				})
 			return newObject
 		})
+	}
+
+	private isRightEdge = (edge: IGraphEdge, node: GraphReturn) => {
+		return (edge.nodeSrc === node.from && edge.nodeDest === node.to) || (edge.nodeSrc === node.to && edge.nodeDest === node.from)
 	}
 
 };

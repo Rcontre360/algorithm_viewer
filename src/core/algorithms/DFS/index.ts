@@ -1,6 +1,6 @@
 interface DFSOptions {
 	startIndex: number;
-	previousIndex: number | undefined;
+	previousIndex: number;
 }
 
 let visited: boolean[] = []
@@ -19,7 +19,7 @@ const deepFirstSearch = < T extends object > (graph: GraphInterface < T > , opti
 	visited[startIndex] = true
 	DFSreturn.push({
 		forward: true,
-		from: previousIndex || -1,
+		from: previousIndex,
 		to: startIndex
 	})
 
@@ -35,7 +35,7 @@ const deepFirstSearch = < T extends object > (graph: GraphInterface < T > , opti
 	DFSreturn.push({
 		forward: false,
 		from: startIndex,
-		to: previousIndex || -1
+		to: previousIndex
 	})
 }
 
@@ -50,7 +50,6 @@ const driverFunction: GraphAlgorithm < GraphInterface < object > , GraphReturn[]
 	visited = new Array(graph.getNumberOfElements())
 	visited.fill(false)
 	deepFirstSearch(graph, options)
-
 	return DFSreturn
 }
 

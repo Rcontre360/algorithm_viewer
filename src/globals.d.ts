@@ -13,7 +13,13 @@ interface GraphInterface < T extends GraphType > {
 	getNodeConnections(node: number): number[],
 	getNumberOfElements(): number,
 	getAllNodeConnections(): number[][],
-	getAllNodeData(): T[]
+	getAllNodeData(): T[],
+	getEdges(): IGraphEdge[]
+}
+
+interface IGraphEdge {
+	nodeSrc: number;
+	nodeDest: number;
 }
 
 interface GraphReturn {

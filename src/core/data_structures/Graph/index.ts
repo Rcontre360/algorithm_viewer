@@ -1,20 +1,22 @@
-type GraphOptionsKeys = keyof GraphOptions < GraphType >
+type GraphOptionsKeys = keyof IGraphOptions < GraphType > ;
 
-	interface GraphOptions < T extends GraphType > {
-		onConnect(...nodeUserArguments: T[]): void,
-		onAddNode(...nodeUserArguments: T[]): void
-	}
+interface IGraphOptions < T extends GraphType > {
+	onConnect(...nodeUserArguments: T[]): void,
+	onAddNode(...nodeUserArguments: T[]): void
+}
 
 class Graph < T extends GraphType > implements GraphInterface < T > {
 	private nodes: number[][] = []
 	private nodeData: T[] = []
 	private size: number = 0
-	private options: GraphOptions < T > = {
+	private edges: IGraphEdges[] = [];
+	private edgeQuantity: number = 0;
+	private options: IGraphOptions < T > = {
 		onConnect: () => 1,
 		onAddNode: () => 1
-	}
+	};
 
-	constructor(nodes ? : number[][], nodeData ? : T[], options ? : GraphOptions < T > ) {
+	constructor(nodes ? : number[][], nodeData ? : T[], options ? : IGraphOptions < T > ) {
 		if (nodes && nodeData) {
 			this.nodes = [...nodes]
 			this.nodeData = [...nodeData]
@@ -27,21 +29,21 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 		}
 	}
 
-	setGraphOptions(newOptions: GraphOptions < T > | Function) {
+	setGraphOptions = (newOptions: IGraphOptions < T > | Function) => {
 		if (newOptions instanceof Function)
 			this.options = newOptions(this.options)
 		else
 			this.options = newOptions
 	}
 
-	addNode(nodeAdded: T): void {
+	addNode = (nodeAdded: T): void => {
 		this.applyOptions("onAddNode", nodeAdded)
 		this.size++;
 		this.nodeData.push(nodeAdded)
 		this.nodes.push([])
 	}
 
-	connectNodes(nodeSource: number | T, nodeDest: number | T): void {
+	connectNodes = (nodeSource: number | T, nodeDest: number | T): void => {
 		nodeSource = this.getNodeNumber(nodeSource)
 		nodeDest = this.getNodeNumber(nodeDest)
 
@@ -49,11 +51,16 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 		const destData = this.nodeData[nodeDest]
 		this.applyOptions("onConnect", sourceData, destData)
 
+		this.edges.push({
+			nodeSrc: nodeSource,
+			nodeDest: nodeDest,
+		})
+		this.edgeQuantity++;
 		this.nodes[nodeSource].push(nodeDest)
 		this.nodes[nodeDest].push(nodeSource)
 	}
 
-	deleteNode(nodeDeleted: number): void {
+	deleteNode = (nodeDeleted: number): void => {
 		if (this.size <= nodeDeleted)
 			return
 		const filterFunction = (nodeConnections: number[] | T | number, index: number) => index !== nodeDeleted
@@ -67,25 +74,25 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 		this.size--
 	}
 
-	getNodeData(nodeIndex: number): T {
+	getNodeData = (nodeIndex: number): T => {
 		if (nodeIndex < 0 || nodeIndex >= this.size)
 			throw new Error('You cannot access nodes out of scope')
 		return this.nodeData[nodeIndex]
 	}
 
-	getNodeConnections(nodeIndex: number): number[] {
+	getNodeConnections = (nodeIndex: number): number[] => {
 		return this.nodes[nodeIndex]
 	}
 
-	getNumberOfElements(): number {
+	getNumberOfElements = (): number => {
 		return this.size
 	}
 
-	getAllNodeData(): T[] {
+	getAllNodeData = (): T[] => {
 		return [...this.nodeData]
 	}
 
-	getAllNodeConnections(): number[][] {
+	getAllNodeConnections = (): number[][] => {
 		let nodeConnections: number[][] = []
 		this.nodes.forEach(node => {
 			nodeConnections.push([...node])
@@ -93,13 +100,17 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 		return nodeConnections
 	}
 
-	private getNodeNumber(object: T | number): number {
+	getEdges = (): IGraphEdges[] => {
+		return [...this.edges]
+	}
+
+	private getNodeNumber = (object: T | number): number => {
 		if (object instanceof Number)
 			return object as number
 		return this.nodeData.findIndex(obj => obj === object)
 	}
 
-	private applyOnConnect() {
+	private applyOnConnect = () => {
 		this.nodes.forEach((connections, index) => {
 
 			connections.forEach(nodeIndex => {
@@ -113,7 +124,7 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 		})
 	}
 
-	private applyOptions(type: GraphOptionsKeys, ...args: T[]) {
+	private applyOptions = (type: GraphOptionsKeys, ...args: T[]) => {
 		if (this.options[type] instanceof Function)
 			this.options[type](...args)
 	}
