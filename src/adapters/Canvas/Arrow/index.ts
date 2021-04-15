@@ -21,7 +21,7 @@ class Arrow extends fabric.Line {
 	_render = (event: CanvasRenderingContext2D) => {
 		event.beginPath();
 		const r = this.calcLinePoints();
-		const headlen = 25;
+		const headlen = 8;
 		const angle = Math.atan2(r.y2 - r.y1, r.x2 - r.x1);
 		event.moveTo(r.x1, r.y1);
 		event.lineTo(r.x2, r.y2);

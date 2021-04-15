@@ -3,6 +3,7 @@ import { fabric } from "fabric"
 import { GraphCase, DFS, AlgorithmCaseReturn } from "../../core"
 
 import lineDrawer from "./lineDrawer"
+import Node from './Node'
 import { INodeStyles, IEdgeStyles, IGraphCanvasArgs } from '../interfaces'
 
 class BaseCanvas extends fabric.Canvas {

@@ -110,9 +110,15 @@ class LineDrawer {
 
 		const nodeOrigin: fabric.Circle = event.target as fabric.Circle
 		const nodeDestiny: fabric.Circle = this.canvas!.getNodeUnderMouse(event) as fabric.Circle
-		const x = nodeDestiny.left as number
-		const y = nodeDestiny.top as number
+		let x = nodeDestiny.left as number
+		let y = nodeDestiny.top as number
 		const radius = nodeDestiny.radius as number
+
+		if (this._useArrow) {
+			const arrowCoords = this.getCircleLineIntersection(this._line, nodeDestiny)
+			x = arrowCoords.x
+			y = arrowCoords.y
+		}
 
 		this._line.set({
 			x2: (x as number),
@@ -121,8 +127,6 @@ class LineDrawer {
 			lockMovementY: true,
 		}).setCoords();
 
-		//const angle = (y - (this._line.y1 as number)) / (x - (this._line.x1 as number))
-
 		this.lines.push(this._line)
 		this.canvas!.graph!.addEdge(nodeOrigin, nodeDestiny)
 		this.canvas!.renderAll()
@@ -130,6 +134,29 @@ class LineDrawer {
 			coordenades: [0, 0, 0, 0]
 		}
 		this.isDrawing = false
+	}
+
+	private getCircleLineIntersection = (line: fabric.Line | Arrow, circle: fabric.Circle) => {
+		const x1 = line.x1 as number,
+			y1 = line.y1 as number,
+			x2 = circle.left as number,
+			y2 = circle.top as number;
+		let radius = circle.radius as number;
+
+		const angle = (y1 - y2) / (x1 - x2)
+		const powAngle = Math.pow(angle, 2)
+
+		if (x2 < x1) {
+			radius *= -1
+			console.log('minus')
+		}
+
+		console.log(Math.atan(angle) * 180 / Math.PI);
+		const intersectionX = x2 - (radius / Math.sqrt(1 + powAngle));
+
+		const intersectionY = angle * (intersectionX - x2) + y2
+
+		return { x: intersectionX, y: intersectionY }
 	}
 }
 
