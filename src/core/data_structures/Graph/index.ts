@@ -11,7 +11,7 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 	private size: number = 0
 	private edges: IGraphEdge[] = [];
 	private edgeQuantity: number = 0;
-	private directed: boolean = true;
+	private directed: boolean = false;
 	private options: IGraphOptions < T > = {
 		onConnect: () => 1,
 		onAddNode: () => 1

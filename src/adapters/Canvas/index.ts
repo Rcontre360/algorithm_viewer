@@ -24,7 +24,6 @@ class BaseCanvas extends fabric.Canvas {
 			height: clientHeight
 		})
 
-		//this.drawer = new lineDrawer(this)
 	}
 
 	protected isMouseIntoObject = (event: fabric.IEvent, instance: "Circle" | "Object" | "Line" | "Rect"): fabric.Object | undefined => {
@@ -111,7 +110,6 @@ const defaultEdgeStyles: IEdgeStyles = {
 
 class GraphCanvas extends BaseCanvas {
 
-	private drawingLine: boolean = false
 	private drawer: lineDrawer = new lineDrawer(this)
 	private nodeStyles: INodeStyles = defaultNodeStyles
 	private edgeStyles: IEdgeStyles = defaultEdgeStyles
@@ -157,11 +155,19 @@ class GraphCanvas extends BaseCanvas {
 		return test;
 	}
 
+	setDirected = (isDirected: boolean) => {
+		this.clear();
+		this.renderAll();
+		this.drawer.useArrow(isDirected)
+		this.graph!.setDirected(isDirected);
+	}
+
 	private colorNodes = (action: AlgorithmCaseReturn < fabric.Circle > ) => {
 		if (action.forward)
 			this.colorNodesForward(action)
 		else
 			this.coloNodesBackward(action)
+		this.renderAll()
 	}
 
 	private colorNodesForward = (action: AlgorithmCaseReturn < fabric.Circle > ) => {

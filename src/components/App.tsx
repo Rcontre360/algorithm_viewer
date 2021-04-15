@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme)=>({
 
 const App = ()=>{
 	const [canvas,setCanvas] = useState<Canvas | undefined>(undefined)
+	const [isDirected,setIsDirected] = useState<boolean>(false)
 	const [addNode,setAddNode] = useState<boolean>(false)
 	const [addEdges,setAddEdges] = useState<boolean>(false)
 	const classes = useStyles()
@@ -39,6 +40,13 @@ const App = ()=>{
 			edgeStyles
 		}))
 	},[]);
+
+	useEffect(()=>{
+		if (addNode)
+			setAddEdges(false)
+		if (addEdges)
+			setAddNode(false)
+	},[addNode,addEdges])
 
 	return (
 	<Box
@@ -55,7 +63,10 @@ const App = ()=>{
 		</Typography>
 		<Box>
 			<Button
-				onClick={()=>canvas!.allowAddNode()}
+				onClick={()=>{
+					setAddNode(prev=>!prev)
+					canvas!.allowAddNode()
+				}}
 				variant="contained"
 				className={addNode?classes.buttonOn:classes.buttonOff}
 			>
@@ -71,9 +82,22 @@ const App = ()=>{
 			<Button
 				variant="contained"
 				className={addEdges?classes.buttonOn:classes.buttonOff}
-				onClick={()=>canvas!.allowAddEdge()}
+				onClick={()=>{
+					setAddEdges(prev=>!prev)
+					canvas!.allowAddEdge()
+				}}
 			>
 				Add edges
+			</Button>
+			<Button
+				variant="contained"
+				className={isDirected?classes.buttonOn:classes.buttonOff}
+				onClick={()=>{
+					setIsDirected(prev=>!prev)
+					canvas!.setDirected(!isDirected)
+				}}
+			>
+				Set directed
 			</Button>
 		</Box>
 		<div 
