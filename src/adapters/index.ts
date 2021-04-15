@@ -1,2 +1,2 @@
-export * from "./GraphNode"
 export * from "./Canvas"
+export * from './interfaces'

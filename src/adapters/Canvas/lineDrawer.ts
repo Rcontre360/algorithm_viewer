@@ -1,9 +1,5 @@
-import {
-	fabric
-} from "fabric"
-import {
-	Canvas
-} from "./index"
+import { fabric } from "fabric"
+import { Canvas } from "./index"
 
 interface ILineDrawn {
 	nodeSrc: number;
@@ -13,6 +9,7 @@ interface ILineDrawn {
 
 class LineDrawer {
 	private line: fabric.Line = new fabric.Line([0, 0, 0, 0])
+	private lineArrow: fabric.Triangle = new fabric.Triangle()
 	private canvas: Canvas | null = null;
 	private draggingLineOnNode: boolean = false;
 	private isDrawing: boolean = false;
@@ -49,13 +46,23 @@ class LineDrawer {
 			pointer.left || 0,
 			pointer.top || 0
 		]
+
 		this.line = new fabric.Line(lineCoordenades, {
 			stroke: "black",
 			strokeWidth: 3
 		})
+		this.lineArrow = new fabric.Triangle({
+			width: 10,
+			height: 15,
+			fill: 'red',
+			left: pointer.left + 5,
+			top: pointer.top,
+			angle: 0,
+		});
 
 		this.isDrawing = true;
 		this.canvas!.add(this.line);
+		this.canvas!.add(this.lineArrow)
 		this.canvas!.sendToBack(this.line)
 	}
 
@@ -72,14 +79,33 @@ class LineDrawer {
 			x2: pointer.x,
 			y2: pointer.y
 		}).setCoords();
+
+		this.lineArrow.set({
+			top: pointer.y,
+			left: pointer.x,
+			angle: this.getLineAngle(this.line)
+		}).setCoords();
 		this.canvas!.renderAll()
 	}
 
 	private isDrawable = (): boolean => Boolean(this.isDrawing && this.line && this.canvas && this.line)
 
+	private getLineAngle = (line): number => {
+		const x1 = line.get('x1');
+		const x2 = line.get('x2');
+		const y1 = line.get('y1');
+		const y2 = line.get('y2');
+
+		let angle = Math.atan2(y1 - y2, x1 - x2);
+
+		angle = angle * 180 / Math.PI - 90;
+		return angle
+	}
+
 	private stopDrawing = (event: fabric.IEvent) => {
 		if (!this.canvas!.isMouseIntoNode(event)) {
 			this.canvas!.remove(this.line)
+			this.canvas!.remove(this.lineArrow)
 			this.line.set({
 				stroke: "transparent",
 			})
@@ -96,11 +122,16 @@ class LineDrawer {
 			lockMovementX: true,
 			lockMovementY: true,
 		}).setCoords();
+		this.lineArrow.set({
+			top: nodeDestiny.top,
+			left: nodeDestiny.left
+		}).setCoords()
 
 		this.lines.push(this.line)
 		this.canvas!.graph!.addEdge(nodeOrigin, nodeDestiny)
 		this.canvas!.renderAll()
 		this.line = new fabric.Line([0, 0, 0, 0])
+		this.lineArrow = new fabric.Triangle()
 		this.isDrawing = false
 	}
 }

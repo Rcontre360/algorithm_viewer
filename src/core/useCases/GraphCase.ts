@@ -1,6 +1,6 @@
 import { Graph } from '../data_structures/Graph'
 
-interface AlgorithmCaseReturn < T > extends GraphReturn {
+export interface AlgorithmCaseReturn < T > extends GraphReturn {
 	fromData: T;
 	toData: T;
 	edgeIndex: number;
@@ -68,26 +68,31 @@ export class GraphCase < T extends GraphType > {
 		return this.graph.getNodeData(index)
 	}
 
+	setDirected(isDirected: boolean) {
+		this.graph.emptyGraph()
+		this.graph.setDirected(isDirected)
+	}
+
 	startAlgorithm = (options ? : unknown) => {
-		const algorithm = this.algorithm!(this.graph, options) as GraphReturn[]
+		const algorithmData = this.algorithm!(this.graph, options) as GraphReturn[]
 		const edges = this.graph.getEdges()
 
-		return algorithm.map(obj => {
-			const newObject = { ...obj } as AlgorithmCaseReturn < T > ;
+		return algorithmData.map(obj => this.parseReturnValue(obj, edges))
+	}
 
-			if (obj.from >= 0)
-				newObject.fromData = this.graph.getNodeData(obj.from)
+	private parseReturnValue = (obj: GraphReturn, edges: IGraphEdge[]) => {
+		const newObject = { ...obj } as AlgorithmCaseReturn < T > ;
 
-			if (obj.to >= 0)
-				newObject.toData = this.graph.getNodeData(obj.to)
+		if (obj.from >= 0)
+			newObject.fromData = this.graph.getNodeData(obj.from)
 
-			if (obj.from >= 0 && obj.to >= 0)
-				newObject.edgeIndex = edges.findIndex(edge => {
-					const test = this.isRightEdge({ ...edge }, obj)
-					return test
-				})
-			return newObject
-		})
+		if (obj.to >= 0)
+			newObject.toData = this.graph.getNodeData(obj.to)
+
+		if (obj.from >= 0 && obj.to >= 0)
+			newObject.edgeIndex = edges.findIndex(edge => this.isRightEdge({ ...edge }, obj))
+
+		return newObject
 	}
 
 	private isRightEdge = (edge: IGraphEdge, node: GraphReturn) => {

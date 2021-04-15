@@ -9,8 +9,9 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 	private nodes: number[][] = []
 	private nodeData: T[] = []
 	private size: number = 0
-	private edges: IGraphEdges[] = [];
+	private edges: IGraphEdge[] = [];
 	private edgeQuantity: number = 0;
+	private directed: boolean = true;
 	private options: IGraphOptions < T > = {
 		onConnect: () => 1,
 		onAddNode: () => 1
@@ -36,6 +37,10 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 			this.options = newOptions
 	}
 
+	setDirected = (isDirected: boolean) => {
+		this.directed = isDirected
+	}
+
 	addNode = (nodeAdded: T): void => {
 		this.applyOptions("onAddNode", nodeAdded)
 		this.size++;
@@ -57,7 +62,8 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 		})
 		this.edgeQuantity++;
 		this.nodes[nodeSource].push(nodeDest)
-		this.nodes[nodeDest].push(nodeSource)
+		if (!this.directed)
+			this.nodes[nodeDest].push(nodeSource)
 	}
 
 	deleteNode = (nodeDeleted: number): void => {
@@ -100,8 +106,17 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 		return nodeConnections
 	}
 
-	getEdges = (): IGraphEdges[] => {
+	getEdges = (): IGraphEdge[] => {
 		return [...this.edges]
+	}
+
+	emptyGraph = () => {
+		this.nodes = [];
+		this.nodeData = [];
+		this.size = 0;
+		this.edges = [];
+		this.edgeQuantity = 0;
+		this.directed = true;
 	}
 
 	private getNodeNumber = (object: T | number): number => {

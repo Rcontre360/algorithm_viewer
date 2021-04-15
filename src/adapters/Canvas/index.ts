@@ -1,6 +1,9 @@
 import { fabric } from "fabric"
+
+import { GraphCase, DFS, AlgorithmCaseReturn } from "../../core"
+
 import lineDrawer from "./lineDrawer"
-import { GraphCase, DFS } from "../../core"
+import { INodeStyles, IEdgeStyles, IGraphCanvasArgs } from '../interfaces'
 
 class BaseCanvas extends fabric.Canvas {
 
@@ -62,25 +65,6 @@ class BaseCanvas extends fabric.Canvas {
 		return objIntersect
 	}
 
-}
-
-interface IGraphCanvasArgs {
-	canvasId: string;
-	containerId: string;
-	nodeStyles: INodeStyles;
-	edgeStyles: IEdgeStyles
-}
-
-interface INodeStyles {
-	unactive: fabric.ICircleOptions;
-	active: fabric.ICircleOptions;
-	visited: fabric.ICircleOptions;
-}
-
-interface IEdgeStyles {
-	unactive: fabric.ILineOptions;
-	active: fabric.ICircleOptions;
-	visited: fabric.ICircleOptions;
 }
 
 const defaultNodeStyles: INodeStyles = {
@@ -146,26 +130,9 @@ class GraphCanvas extends BaseCanvas {
 	startAlgorithm = (options ? : unknown) => {
 		const algorithmData = this.graph!.startAlgorithm(options)
 		const lines = this.drawer.lines
+
 		algorithmData.forEach((action, i) => {
-			setTimeout(() => {
-
-				if (action.forward) {
-					(action.toData as fabric.Circle).set(this.nodeStyles.active)
-					if (action.from !== -1)
-						lines[action.edgeIndex].set(this.edgeStyles.active)
-				} else {
-					const style = this.nodeStyles.visited
-					if (action.from !== -1) {
-						(action.fromData as fabric.Circle).set(style)
-					} else {
-						(action.toData as fabric.Circle).set(style)
-					}
-					if (action.to !== -1)
-						lines[action.edgeIndex].set(this.edgeStyles.visited)
-				}
-
-				this.renderAll()
-			}, 800 * i)
+			setTimeout(this.colorNodes, 800 * i, action)
 		})
 	}
 
@@ -190,6 +157,32 @@ class GraphCanvas extends BaseCanvas {
 		return test;
 	}
 
+	private colorNodes = (action: AlgorithmCaseReturn < fabric.Circle > ) => {
+		if (action.forward)
+			this.colorNodesForward(action)
+		else
+			this.coloNodesBackward(action)
+	}
+
+	private colorNodesForward = (action: AlgorithmCaseReturn < fabric.Circle > ) => {
+		const lines = this.drawer.lines;
+		(action.toData as fabric.Circle).set(this.nodeStyles.active)
+		if (action.from !== -1)
+			lines[action.edgeIndex].set(this.edgeStyles.active)
+	}
+
+	private coloNodesBackward = (action: AlgorithmCaseReturn < fabric.Circle > ) => {
+		const style = this.nodeStyles.visited
+		const lines = this.drawer.lines
+		if (action.from !== -1) {
+			(action.fromData as fabric.Circle).set(style)
+		} else {
+			(action.toData as fabric.Circle).set(style)
+		}
+		if (action.to !== -1)
+			lines[action.edgeIndex].set(this.edgeStyles.visited)
+	}
+
 	private addNodeHandler = (event: fabric.IEvent) => {
 		if (!this.graph!.canAddNode)
 			return;
@@ -208,9 +201,4 @@ class GraphCanvas extends BaseCanvas {
 
 export {
 	GraphCanvas as Canvas,
-}
-
-export type {
-	INodeStyles,
-	IEdgeStyles,
 }

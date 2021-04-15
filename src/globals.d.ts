@@ -9,12 +9,14 @@ interface GraphInterface < T extends GraphType > {
 	connectNodes(src: number | T, dest: number | T): void,
 	deleteNode(node: number): void,
 
+	setDirected(isDirected: boolean),
 	getNodeData(node: number): T,
 	getNodeConnections(node: number): number[],
 	getNumberOfElements(): number,
 	getAllNodeConnections(): number[][],
 	getAllNodeData(): T[],
-	getEdges(): IGraphEdge[]
+	getEdges(): IGraphEdge[],
+	emptyGraph(): void,
 }
 
 interface IGraphEdge {
