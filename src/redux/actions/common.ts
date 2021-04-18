@@ -8,8 +8,8 @@ import {
 import { AppDispatch } from '../store'
 
 export const startAlgorithm = () => {
-	(dispatch: AppDispatch) => {
-		dispatch({
+	return (dispatch: AppDispatch) => {
+		return dispatch({
 			type: START_ALGORITHM,
 			payload: true
 		})
@@ -17,8 +17,8 @@ export const startAlgorithm = () => {
 }
 
 export const stopAlgorithm = () => {
-	(dispatch: AppDispatch) => {
-		dispatch({
+	return (dispatch: AppDispatch) => {
+		return dispatch({
 			type: STOP_ALGORITHM,
 			payload: false
 		})

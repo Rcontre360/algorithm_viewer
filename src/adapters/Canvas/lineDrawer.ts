@@ -1,6 +1,8 @@
 import { fabric } from "fabric"
 import { Canvas } from "./index"
 import Arrow from './Arrow'
+import store from '../../redux/store'
+import { addEdge } from '../../redux/actions'
 
 interface ILineDrawn {
 	nodeSrc: number;
@@ -128,7 +130,7 @@ class LineDrawer {
 		}).setCoords();
 
 		this.lines.push(this._line)
-		this.canvas!.graph!.addEdge(nodeOrigin, nodeDestiny)
+		addEdge({ src: nodeOrigin, dest: nodeDestiny })(store.dispatch)
 		this.canvas!.renderAll()
 		this.line = {
 			coordenades: [0, 0, 0, 0]

@@ -73,7 +73,11 @@ export class GraphCase < T extends GraphType > {
 		this.graph.setDirected(isDirected)
 	}
 
-	startAlgorithm = (options ? : unknown) => {
+	setAlgorithm = (algorithm: GraphAlgorithm < unknown, GraphReturn[] > ) => {
+		this.algorithm = algorithm
+	}
+
+	startAlgorithm = (options ? : object) => {
 		const algorithmData = this.algorithm!(this.graph, options) as GraphReturn[]
 		const edges = this.graph.getEdges()
 

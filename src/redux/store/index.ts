@@ -7,9 +7,14 @@ interface ICommonState {
 }
 
 interface IAlgorithmState {
-	name: string;
+	name: 'dfs';
 	dataStructure: string;
-	options: Readonly < object > ;
+	options: {
+		readonly addNode: boolean;
+		readonly addEdge: boolean;
+		readonly directed: boolean;
+	};
+	output: any;
 }
 
 interface IInitialState {
@@ -23,18 +28,20 @@ const initialState: IInitialState = {
 		running: false,
 	},
 	algorithm: {
-		name: 'DFS',
+		name: 'dfs',
 		dataStructure: 'graph',
+		output: undefined,
 		options: {
 			addNode: true,
 			addEdge: false,
+			directed: false
 		}
 	},
 }
 
-const store: Store = createStore(mainReducer, ['Use Redux'])
+const store: Store = createStore(mainReducer, initialState)
 
 export type RootState = ReturnType < typeof store.getState > ;
-export type AppDispatch = typeof store.dispatch
+export type AppDispatch = typeof store.dispatch;
 export type InitialState = Readonly < IInitialState > ;
 export default store

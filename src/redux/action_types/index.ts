@@ -5,6 +5,7 @@ export const SET_SPEED = 'set_speed'
 export const SET_DATA_STRUCTURE = 'change_data_structure';
 export const SET_ALGORITHM = 'set_algorithm';
 
+export const SET_DIRECTED = 'set_directed'
 export const ALLOW_ADD_NODE = 'allow_add_node';
 export const ALLOW_ADD_EDGE = 'allow_add_edge';
 export const ADD_NODE = 'add_node';

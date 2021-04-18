@@ -1,1 +1,5 @@
-export * from './DFS'
+import { DFS } from './DFS'
+
+export const algorithms = {
+	dfs: DFS
+}

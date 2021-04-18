@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from "react"
 import { fabric } from "fabric"
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { applyMiddleware, createStore } from 'redux'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
@@ -9,8 +9,7 @@ import Box from '@material-ui/core/Box';
 
 import {nodeStyles,edgeStyles} from './shape_styles'
 import {Canvas} from "../adapters"
-import {DFS} from "../core/algorithms"
-import {colorGraphNode} from "../adapters"
+import {allowAddNode,allowAddEdge,startAlgorithm,onSetDirected} from '../redux/actions'
 
 const useStyles = makeStyles((theme)=>({
 	canvasContainer:{
@@ -31,6 +30,7 @@ const App = ()=>{
 	const [addNode,setAddNode] = useState<boolean>(false)
 	const [addEdges,setAddEdges] = useState<boolean>(false)
 	const classes = useStyles()
+	const dispatch = useDispatch()
 
 	useEffect(()=>{
 		setCanvas(new Canvas({
@@ -63,17 +63,14 @@ const App = ()=>{
 		</Typography>
 		<Box>
 			<Button
-				onClick={()=>{
-					setAddNode(prev=>!prev)
-					canvas!.allowAddNode()
-				}}
+				onClick={() => allowAddNode()(dispatch)}
 				variant="contained"
 				className={addNode?classes.buttonOn:classes.buttonOff}
 			>
 				Add node
 			</Button>
 			<Button
-				onClick={()=>canvas!.startAlgorithm()}
+				onClick={()=>startAlgorithm()(dispatch)}
 				variant="contained"
 				className={addNode?classes.buttonOn:classes.buttonOff}
 			>
@@ -82,20 +79,14 @@ const App = ()=>{
 			<Button
 				variant="contained"
 				className={addEdges?classes.buttonOn:classes.buttonOff}
-				onClick={()=>{
-					setAddEdges(prev=>!prev)
-					canvas!.allowAddEdge()
-				}}
+				onClick={()=>allowAddEdge()(dispatch)}
 			>
 				Add edges
 			</Button>
 			<Button
 				variant="contained"
 				className={isDirected?classes.buttonOn:classes.buttonOff}
-				onClick={()=>{
-					setIsDirected(prev=>!prev)
-					canvas!.setDirected(!isDirected)
-				}}
+				onClick={()=>onSetDirected(!isDirected)(dispatch)}
 			>
 				Set directed
 			</Button>

@@ -1,10 +1,12 @@
 import { fabric } from "fabric"
 
-import { GraphCase, DFS, AlgorithmCaseReturn } from "../../core"
+import { GraphCase, AlgorithmCaseReturn } from "../../core"
 
 import lineDrawer from "./lineDrawer"
 import Node from './Node'
 import { INodeStyles, IEdgeStyles, IGraphCanvasArgs } from '../interfaces'
+import store, { InitialState } from '../../redux/store'
+import { addNode } from '../../redux/actions'
 
 class BaseCanvas extends fabric.Canvas {
 
@@ -114,35 +116,49 @@ class GraphCanvas extends BaseCanvas {
 	private drawer: lineDrawer = new lineDrawer(this)
 	private nodeStyles: INodeStyles = defaultNodeStyles
 	private edgeStyles: IEdgeStyles = defaultEdgeStyles
-	graph: GraphCase < fabric.Circle > | undefined;
+	private _allowAddNode: boolean = false
 
 	constructor(canvasOptions: IGraphCanvasArgs) {
 		super(canvasOptions.canvasId, canvasOptions.containerId)
-		this.graph = new GraphCase(DFS)
-		this.drawer = new lineDrawer(this)
+		store.subscribe(() => {
+			const state: InitialState = store.getState()
+			console.log(state, state.algorithm.options.addNode)
+			if (state.algorithm.options.addNode && !this._allowAddNode) {
+				this.allowAddNode()
+				this._allowAddNode = true
+				console.log('node')
+			} else if (state.algorithm.options.addEdge && this._allowAddNode) {
+				this.allowAddEdge()
+
+				this._allowAddNode = false
+				console.log('edge')
+			} else if (state.common.running) {
+				this.startAlgorithm(state.algorithm.output)
+			}
+		})
+
+		this.setDirected(true)
+
 		if (canvasOptions.nodeStyles)
 			this.nodeStyles = canvasOptions.nodeStyles
 		if (canvasOptions.edgeStyles)
 			this.edgeStyles = canvasOptions.edgeStyles
 	}
 
-	startAlgorithm = (options ? : unknown) => {
-		const algorithmData = this.graph!.startAlgorithm(options)
+	startAlgorithm = (algorithmData: any[]) => {
 		const lines = this.drawer.lines
 
-		algorithmData.forEach((action, i) => {
+		algorithmData.forEach((action: object, i) => {
 			setTimeout(this.colorNodes, 800 * i, action)
 		})
 	}
 
 	allowAddNode = () => {
-		this.graph!.canAddNode = true
 		this.on("mouse:down", this.addNodeHandler)
 		this.drawer.removeDrawingEvents()
 	}
 
 	allowAddEdge = () => {
-		this.graph!.canAddEdge = true
 		this.off("mouse:down", this.addNodeHandler)
 		this.drawer.setDrawingEvents()
 	}
@@ -160,7 +176,6 @@ class GraphCanvas extends BaseCanvas {
 		this.clear();
 		this.renderAll();
 		this.drawer.useArrow(isDirected)
-		this.graph!.setDirected(isDirected);
 	}
 
 	private colorNodes = (action: AlgorithmCaseReturn < fabric.Circle > ) => {
@@ -191,16 +206,14 @@ class GraphCanvas extends BaseCanvas {
 	}
 
 	private addNodeHandler = (event: fabric.IEvent) => {
-		if (!this.graph!.canAddNode)
-			return;
-
+		console.log('node added')
 		const pointer = event.pointer as fabric.Point
 		const circle = new fabric.Circle(this.nodeStyles.unactive)
 		circle.set({
 			top: pointer.y,
 			left: pointer.x
 		})
-		this.graph!.addNode(circle)
+		addNode(circle)(store.dispatch)
 		this.add(circle)
 	}
 }
