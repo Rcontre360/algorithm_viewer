@@ -1,7 +1,8 @@
-import { Graph } from './Graph'
+import GraphDS from './Graph'
 
 const dataStructures = {
-	graph: Graph
+	graph: GraphDS
 }
 
+export * from './Graph'
 export default dataStructures

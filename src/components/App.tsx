@@ -95,7 +95,7 @@ const App = ()=>{
 			id="canvas_container" 
 			className={classes.canvasContainer}
 		>
-			<canvas id="main_canvas"></canvas>
+			<canvas id="main_canvas" role=''></canvas>
 		</div>
 	</Box>
 	)

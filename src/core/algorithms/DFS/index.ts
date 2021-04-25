@@ -13,8 +13,6 @@ const deepFirstSearch = < T extends object > (graph: GraphInterface < T > , opti
 		previousIndex,
 	} = options
 
-	console.log(startIndex, previousIndex)
-
 	if (graph.getNumberOfElements() <= startIndex)
 		return
 

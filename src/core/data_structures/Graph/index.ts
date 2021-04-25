@@ -5,7 +5,7 @@ interface IGraphOptions < T extends GraphType > {
 	onAddNode(...nodeUserArguments: T[]): void
 }
 
-class Graph < T extends GraphType > implements GraphInterface < T > {
+export class Graph < T extends GraphType > implements GraphInterface < T > {
 	private nodes: number[][] = []
 	private nodeData: T[] = []
 	private size: number = 0
@@ -71,7 +71,7 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 			return
 		const filterFunction = (nodeConnections: number[] | T | number, index: number) => index !== nodeDeleted
 
-		this.nodes.filter(filterFunction)
+		this.nodes = this.nodes.filter(filterFunction)
 		this.nodes.forEach((nodeConnections, index) => {
 			if (nodeConnections)
 				this.nodes[index] = nodeConnections.filter(filterFunction)
@@ -120,7 +120,7 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 	}
 
 	private getNodeNumber = (object: T | number): number => {
-		if (object instanceof Number)
+		if (typeof object === 'number')
 			return object as number
 		return this.nodeData.findIndex(obj => obj === object)
 	}
@@ -145,6 +145,4 @@ class Graph < T extends GraphType > implements GraphInterface < T > {
 	}
 }
 
-export {
-	Graph
-}
+export default Graph

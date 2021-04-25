@@ -1,4 +1,4 @@
-import { Graph } from '../data_structures/Graph'
+import Graph from '../data_structures/Graph'
 
 export interface AlgorithmCaseReturn < T > extends GraphReturn {
 	fromData: T;
@@ -12,7 +12,7 @@ export class GraphCase < T extends GraphType > {
 	private onAddEdge: Function | undefined;
 	private _canAddNode: boolean = false;
 	private _canAddEdge: boolean = false;
-	graph: GraphInterface < T > = new Graph();
+	graph: GraphInterface < T > = undefined as any
 	algorithm: GraphAlgorithm < unknown,
 	unknown > | undefined;
 
@@ -20,6 +20,7 @@ export class GraphCase < T extends GraphType > {
 		onAddNode ? : Function,
 		onAddEdge ? : Function
 	}) {
+		this.graph = new Graph();
 		if (algorithm)
 			this.algorithm = algorithm
 		if (onActions) {

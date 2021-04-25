@@ -1,4 +1,5 @@
 import { createStore, Store } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension';
 import mainReducer from '../reducer'
 
 interface ICommonState {
@@ -39,7 +40,7 @@ const initialState: IInitialState = {
 	},
 }
 
-const store: Store = createStore(mainReducer, initialState)
+const store: Store = createStore(mainReducer, initialState, composeWithDevTools())
 
 export type RootState = ReturnType < typeof store.getState > ;
 export type AppDispatch = typeof store.dispatch;
