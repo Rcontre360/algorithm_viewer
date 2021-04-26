@@ -1,8 +1,8 @@
 import { fabric } from "fabric"
-import { Canvas } from "./index"
-import Arrow from './Arrow'
-import store from '../../redux/store'
-import { addEdge } from '../../redux/actions'
+import { Canvas } from "@adapters/Canvas"
+import Arrow from '@adapters/shapes/Arrow'
+import store from '@redux/store'
+import { addEdge } from '@redux/actions'
 
 interface ILineDrawn {
 	nodeSrc: number;

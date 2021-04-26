@@ -8,8 +8,9 @@ import {makeStyles} from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 
 import {nodeStyles,edgeStyles} from './shape_styles'
-import {Canvas} from "../adapters"
+import {Canvas as ShapeCanvas} from "../adapters"
 import {allowAddNode,allowAddEdge,startAlgorithm,onSetDirected} from '../redux/actions'
+import Canvas from './Canvas'
 
 const useStyles = makeStyles((theme)=>({
 	canvasContainer:{
@@ -25,7 +26,7 @@ const useStyles = makeStyles((theme)=>({
 }))
 
 const App = ()=>{
-	const [canvas,setCanvas] = useState<Canvas | undefined>(undefined)
+	const [canvas,setCanvas] = useState<ShapeCanvas | undefined>(undefined)
 	const [isDirected,setIsDirected] = useState<boolean>(false)
 	const [addNode,setAddNode] = useState<boolean>(false)
 	const [addEdges,setAddEdges] = useState<boolean>(false)
@@ -33,7 +34,7 @@ const App = ()=>{
 	const dispatch = useDispatch()
 
 	useEffect(()=>{
-		setCanvas(new Canvas({
+		setCanvas(new ShapeCanvas({
 			canvasId:"main_canvas",
 			containerId:"canvas_container",
 			nodeStyles,
@@ -95,7 +96,7 @@ const App = ()=>{
 			id="canvas_container" 
 			className={classes.canvasContainer}
 		>
-			<canvas id="main_canvas" role=''></canvas>
+			<Canvas/>
 		</div>
 	</Box>
 	)

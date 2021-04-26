@@ -1,4 +1,4 @@
-import Graph from '../data_structures/Graph'
+import Graph from '@core/data_structures/Graph'
 
 export interface AlgorithmCaseReturn < T > extends GraphReturn {
 	fromData: T;

@@ -1,5 +1,5 @@
-import {Graph} from '../../../core/data_structures/Graph'
-import { DFS } from '../../../core/algorithms/DFS'
+import {Graph} from '../../data_structures/Graph'
+import { DFS } from './index'
 
 describe('DFS should return right values', () => {
 	let graph: Graph < string > ;

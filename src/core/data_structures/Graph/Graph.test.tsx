@@ -1,4 +1,4 @@
-import {Graph}  from '../../../core/data_structures/Graph'
+import {Graph}  from './index'
 
 let graph: Graph < string > ;
 const nodeData = ['node', 'node2', 'node3', 'node4']
