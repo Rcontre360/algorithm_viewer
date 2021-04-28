@@ -13,6 +13,7 @@ module.exports = {
 		"@redux/(.*)": "<rootDir>/src/redux/$1",
 		"@adapters/(.*)": "<rootDir>/src/adapters/$1",
 		"@components/(.*)": "<rootDir>/src/components/$1",
+		"@testing-library/(.*)": "<rootDir>/node_modules/@testing-library/$1",
 	},
 	"verbose": true,
 

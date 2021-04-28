@@ -1,8 +1,8 @@
 interface IGraphCanvasArgs {
 	canvasId: string;
 	containerId: string;
-	nodeStyles: INodeStyles;
-	edgeStyles: IEdgeStyles
+	nodeStyles ? : INodeStyles;
+	edgeStyles ? : IEdgeStyles
 }
 
 interface INodeStyles {

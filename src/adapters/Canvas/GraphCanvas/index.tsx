@@ -56,28 +56,15 @@ export class GraphCanvas extends BaseCanvas {
 	private drawer: lineDrawer = new lineDrawer(this)
 	private nodeStyles: INodeStyles = defaultNodeStyles
 	private edgeStyles: IEdgeStyles = defaultEdgeStyles
-	private _allowAddNode: boolean = false
+	private _addingNodes: boolean = false
 
 	constructor(canvasOptions: IGraphCanvasArgs) {
 		super(canvasOptions.canvasId, canvasOptions.containerId)
-		store.subscribe(() => {
-			const state: InitialState = store.getState()
-			console.log(state, state.algorithm.options.addNode)
-			if (state.algorithm.options.addNode && !this._allowAddNode) {
-				this.allowAddNode()
-				this._allowAddNode = true
-				console.log('node')
-			} else if (state.algorithm.options.addEdge && this._allowAddNode) {
-				this.allowAddEdge()
 
-				this._allowAddNode = false
-				console.log('edge')
-			} else if (state.common.running) {
-				this.startAlgorithm(state.algorithm.output)
-			}
-		})
-
-		this.setDirected(true)
+		store.subscribe(this._allowAddNode)
+		store.subscribe(this._allowAddEdge)
+		store.subscribe(this._setDirected)
+		store.subscribe(this._startAlgorithm)
 
 		if (canvasOptions.nodeStyles)
 			this.nodeStyles = canvasOptions.nodeStyles
@@ -85,7 +72,7 @@ export class GraphCanvas extends BaseCanvas {
 			this.edgeStyles = canvasOptions.edgeStyles
 	}
 
-	startAlgorithm = (algorithmData: any[]) => {
+	_startAlgorithm = () => {
 		const lines = this.drawer.lines
 
 		algorithmData.forEach((action: object, i) => {
@@ -93,12 +80,15 @@ export class GraphCanvas extends BaseCanvas {
 		})
 	}
 
-	allowAddNode = () => {
-		this.on("mouse:down", this.addNodeHandler)
-		this.drawer.removeDrawingEvents()
+	_allowAddNode = () => {
+		const {algorithm} = store.getState() as InitialState 
+		if (algorithm.options.addNode){
+			this.on("mouse:down", this.addNodeHandler)
+			this.drawer.removeDrawingEvents()
+		}
 	}
 
-	allowAddEdge = () => {
+	_allowAddEdge = () => {
 		this.off("mouse:down", this.addNodeHandler)
 		this.drawer.setDrawingEvents()
 	}
@@ -112,10 +102,11 @@ export class GraphCanvas extends BaseCanvas {
 		return test;
 	}
 
-	setDirected = (isDirected: boolean) => {
+	_setDirected = () => {
+		const {algorithm} = store.getState() as InitialState
 		this.clear();
 		this.renderAll();
-		this.drawer.useArrow(isDirected)
+		this.drawer.useArrow(algorithm.options.directed)
 	}
 
 	private colorNodes = (action: AlgorithmCaseReturn < fabric.Circle > ) => {

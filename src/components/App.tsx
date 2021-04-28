@@ -10,7 +10,7 @@ import Box from '@material-ui/core/Box';
 import {nodeStyles,edgeStyles} from './shape_styles'
 import {Canvas as ShapeCanvas} from "../adapters"
 import {allowAddNode,allowAddEdge,startAlgorithm,onSetDirected} from '../redux/actions'
-import Canvas from './Canvas'
+import Canvas from './Canvas/GraphCanvas'
 
 const useStyles = makeStyles((theme)=>({
 	canvasContainer:{

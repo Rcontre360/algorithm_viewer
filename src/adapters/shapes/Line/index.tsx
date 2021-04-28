@@ -1,5 +1,5 @@
 import { fabric } from "fabric"
-import { Canvas } from "@adapters/Canvas"
+import Canvas from "@adapters/Canvas/BaseCanvas"
 import Arrow from '@adapters/shapes/Arrow'
 import store from '@redux/store'
 import { addEdge } from '@redux/actions'
@@ -32,15 +32,15 @@ class LineDrawer {
 	}
 
 	setDrawingEvents = () => {
-		this.canvas!.on("mouse:down", this.addEdgesHandler)
-		this.canvas!.on("mouse:move", this.drawLineHandler)
-		this.canvas!.on("mouse:up", this.stopDrawing)
+		this.canvas!.on("mouse:down", this._addEdgesHandler)
+		this.canvas!.on("mouse:move", this._drawLineHandler)
+		this.canvas!.on("mouse:up", this._stopDrawing)
 	}
 
 	removeDrawingEvents = () => {
-		this.canvas!.off("mouse:down", this.addEdgesHandler)
-		this.canvas!.off("mouse:move", this.drawLineHandler)
-		this.canvas!.off("mouse:up", this.stopDrawing)
+		this.canvas!.off("mouse:down", this._addEdgesHandler)
+		this.canvas!.off("mouse:move", this._drawLineHandler)
+		this.canvas!.off("mouse:up", this._stopDrawing)
 	}
 
 	useArrow = (useArrow: boolean) => {
@@ -56,8 +56,8 @@ class LineDrawer {
 			this._line = new fabric.Line(coordenades, lineOptions || {})
 	}
 
-	private addEdgesHandler = (event: fabric.IEvent) => {
-		if (!this.canvas!.isMouseIntoNode(event))
+	_addEdgesHandler = (event: fabric.IEvent) => {
+		if (!this.canvas!.isMouseIntoObject(event, 'Circle'))
 			return
 
 		const pointer = event.target as fabric.Object
@@ -81,12 +81,12 @@ class LineDrawer {
 		this.canvas!.sendToBack(this._line)
 	}
 
-	private getNodeUnderMouse = (event: fabric.IEvent): fabric.Object => {
+	_getNodeUnderMouse = (event: fabric.IEvent): fabric.Object => {
 		return new fabric.Object({})
 	}
 
-	private drawLineHandler = (event: fabric.IEvent) => {
-		if (!this.isDrawable())
+	_drawLineHandler = (event: fabric.IEvent) => {
+		if (!this._isDrawable())
 			return;
 		const pointer = event.pointer as fabric.Point;
 
@@ -98,10 +98,10 @@ class LineDrawer {
 		this.canvas!.renderAll()
 	}
 
-	private isDrawable = (): boolean => Boolean(this.isDrawing && this._line && this.canvas && this._line)
+	_isDrawable = (): boolean => Boolean(this.isDrawing && this._line && this.canvas && this._line)
 
-	private stopDrawing = (event: fabric.IEvent) => {
-		if (!this.canvas!.isMouseIntoNode(event)) {
+	_stopDrawing = (event: fabric.IEvent) => {
+		if (!this.canvas!.isMouseIntoObject(event, 'Circle')) {
 			this.canvas!.remove(this._line)
 			this._line.set({
 				stroke: "transparent",
@@ -111,13 +111,13 @@ class LineDrawer {
 		}
 
 		const nodeOrigin: fabric.Circle = event.target as fabric.Circle
-		const nodeDestiny: fabric.Circle = this.canvas!.getNodeUnderMouse(event) as fabric.Circle
+		const nodeDestiny: fabric.Circle = this.canvas!.isMouseIntoObject(event, 'Circle') as fabric.Circle
 		let x = nodeDestiny.left as number
 		let y = nodeDestiny.top as number
 		const radius = nodeDestiny.radius as number
 
 		if (this._useArrow) {
-			const arrowCoords = this.getCircleLineIntersection(this._line, nodeDestiny)
+			const arrowCoords = this._getCircleLineIntersection(this._line, nodeDestiny)
 			x = arrowCoords.x
 			y = arrowCoords.y
 		}
@@ -138,7 +138,7 @@ class LineDrawer {
 		this.isDrawing = false
 	}
 
-	private getCircleLineIntersection = (line: fabric.Line | Arrow, circle: fabric.Circle) => {
+	_getCircleLineIntersection = (line: fabric.Line | Arrow, circle: fabric.Circle) => {
 		const x1 = line.x1 as number,
 			y1 = line.y1 as number,
 			x2 = circle.left as number,
