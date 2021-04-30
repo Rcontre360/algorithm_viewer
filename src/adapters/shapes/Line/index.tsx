@@ -1,8 +1,7 @@
 import { fabric } from "fabric"
-import Canvas from "@adapters/Canvas/BaseCanvas"
-import Arrow from '@adapters/shapes/Arrow'
-import store from '@redux/store'
-import { addEdge } from '@redux/actions'
+import Canvas from "../../../adapters/Canvas"
+import Arrow from '../../../adapters/shapes/Arrow'
+import store from '../../../redux/store'
 
 interface ILineDrawn {
 	nodeSrc: number;
@@ -15,32 +14,42 @@ interface lineArguments {
 	lineOptions ? : fabric.ILineOptions;
 }
 
+interface FabricEventHandler {
+	(event:fabric.IEvent):void
+}
+
 class LineDrawer {
-	private _line: fabric.Line | Arrow = new fabric.Line([0, 0, 0, 0])
-	private canvas: Canvas | null = null;
-	private draggingLineOnNode: boolean = false;
-	private isDrawing: boolean = false;
-	private _useArrow: boolean = false;
+	_line: fabric.Line | Arrow = new fabric.Line([0, 0, 0, 0])
+	_canvas: Canvas | null = null;
+	_draggingLineOnNode: boolean = false;
+	_isDrawing: boolean = false;
+	_useArrow: boolean = false;
+	_mouseDownHandler: FabricEventHandler | undefined;
+	_mouseMoveHandler: FabricEventHandler | undefined;
+	_mouseUpHandler: FabricEventHandler | undefined;
 	lines: (fabric.Line | Arrow)[] = [];
 
 	constructor(canvas: Canvas) {
-		this.setCanvas(canvas)
+		this.setCanvas(canvas);
+		this._mouseDownHandler = this._onMouseDown;
+		this._mouseMoveHandler = this._onMouseMove;
+		this._mouseUpHandler = this._onMouseUp;
 	}
 
 	setCanvas = (canvas: Canvas) => {
-		this.canvas = canvas
+		this._canvas = canvas
 	}
 
 	setDrawingEvents = () => {
-		this.canvas!.on("mouse:down", this._addEdgesHandler)
-		this.canvas!.on("mouse:move", this._drawLineHandler)
-		this.canvas!.on("mouse:up", this._stopDrawing)
+		this._canvas!.on("mouse:down", this._mouseDownHandler as FabricEventHandler)
+		this._canvas!.on("mouse:move", this._mouseMoveHandler as FabricEventHandler)
+		this._canvas!.on("mouse:up", this._mouseUpHandler as FabricEventHandler)
 	}
 
 	removeDrawingEvents = () => {
-		this.canvas!.off("mouse:down", this._addEdgesHandler)
-		this.canvas!.off("mouse:move", this._drawLineHandler)
-		this.canvas!.off("mouse:up", this._stopDrawing)
+		this._canvas!.off("mouse:down", this._mouseDownHandler)
+		this._canvas!.off("mouse:move", this._mouseMoveHandler)
+		this._canvas!.off("mouse:up", this._mouseUpHandler)
 	}
 
 	useArrow = (useArrow: boolean) => {
@@ -48,7 +57,24 @@ class LineDrawer {
 		this.lines = []
 	}
 
-	private set line(options: lineArguments) {
+	on = (
+		eventName:'mouse:down' | 'mouse:move' | 'mouse:up',
+		callback:(event:fabric.IEvent,onMouse:FabricEventHandler)=>void
+		)=>{
+		switch(eventName){
+			case 'mouse:down':
+				this._mouseDownHandler = (e)=>callback(e,this._onMouseDown)
+				break
+			case 'mouse:move':
+				this._mouseMoveHandler = (e) => callback(e,this._onMouseMove)
+				break
+			case 'mouse:up':
+				this._mouseUpHandler = (e)=>callback(e,this._onMouseUp)
+				break
+		}
+	}
+
+	setLine(options: lineArguments) {
 		const { coordenades, lineOptions } = options
 		if (this._useArrow)
 			this._line = new Arrow(coordenades, lineOptions || {})
@@ -56,10 +82,11 @@ class LineDrawer {
 			this._line = new fabric.Line(coordenades, lineOptions || {})
 	}
 
-	_addEdgesHandler = (event: fabric.IEvent) => {
-		if (!this.canvas!.isMouseIntoObject(event, 'Circle'))
-			return
+	getLine(){
+		return this._line
+	}
 
+	_onMouseDown = (event: fabric.IEvent) => {
 		const pointer = event.target as fabric.Object
 		const lineCoordenades = [
 			pointer.left || 0,
@@ -68,97 +95,42 @@ class LineDrawer {
 			pointer.top || 0
 		]
 
-		this.line = {
+		this.setLine({
 			coordenades: lineCoordenades,
 			lineOptions: {
 				stroke: "black",
 				strokeWidth: 3
 			}
-		}
+		})
 
-		this.isDrawing = true;
-		this.canvas!.add(this._line);
-		this.canvas!.sendToBack(this._line)
+		this._isDrawing = true;
+		this._canvas!.add(this._line);
+		this._canvas!.sendToBack(this._line)
 	}
 
-	_getNodeUnderMouse = (event: fabric.IEvent): fabric.Object => {
-		return new fabric.Object({})
-	}
-
-	_drawLineHandler = (event: fabric.IEvent) => {
-		if (!this._isDrawable())
+	_onMouseMove = (event: fabric.IEvent) => {
+		if (!this._isDrawable()){
 			return;
+		}
 		const pointer = event.pointer as fabric.Point;
 
 		this._line.set({
 			x2: pointer.x,
 			y2: pointer.y
 		}).setCoords();
-
-		this.canvas!.renderAll()
+		
+		this._canvas!.renderAll()
 	}
 
-	_isDrawable = (): boolean => Boolean(this.isDrawing && this._line && this.canvas && this._line)
+	_isDrawable = () => this._isDrawing && this._line && this._canvas && this._line
 
-	_stopDrawing = (event: fabric.IEvent) => {
-		if (!this.canvas!.isMouseIntoObject(event, 'Circle')) {
-			this.canvas!.remove(this._line)
-			this._line.set({
-				stroke: "transparent",
-			})
-			this.canvas!.renderAll()
-			return
-		}
-
-		const nodeOrigin: fabric.Circle = event.target as fabric.Circle
-		const nodeDestiny: fabric.Circle = this.canvas!.isMouseIntoObject(event, 'Circle') as fabric.Circle
-		let x = nodeDestiny.left as number
-		let y = nodeDestiny.top as number
-		const radius = nodeDestiny.radius as number
-
-		if (this._useArrow) {
-			const arrowCoords = this._getCircleLineIntersection(this._line, nodeDestiny)
-			x = arrowCoords.x
-			y = arrowCoords.y
-		}
-
-		this._line.set({
-			x2: (x as number),
-			y2: (y as number),
-			lockMovementX: true,
-			lockMovementY: true,
-		}).setCoords();
-
+	_onMouseUp = (event: fabric.IEvent) => {
 		this.lines.push(this._line)
-		addEdge({ src: nodeOrigin, dest: nodeDestiny })(store.dispatch)
-		this.canvas!.renderAll()
-		this.line = {
+		this._canvas!.renderAll()
+		this.setLine({
 			coordenades: [0, 0, 0, 0]
-		}
-		this.isDrawing = false
-	}
-
-	_getCircleLineIntersection = (line: fabric.Line | Arrow, circle: fabric.Circle) => {
-		const x1 = line.x1 as number,
-			y1 = line.y1 as number,
-			x2 = circle.left as number,
-			y2 = circle.top as number;
-		let radius = circle.radius as number;
-
-		const angle = (y1 - y2) / (x1 - x2)
-		const powAngle = Math.pow(angle, 2)
-
-		if (x2 < x1) {
-			radius *= -1
-			console.log('minus')
-		}
-
-		console.log(Math.atan(angle) * 180 / Math.PI);
-		const intersectionX = x2 - (radius / Math.sqrt(1 + powAngle));
-
-		const intersectionY = angle * (intersectionX - x2) + y2
-
-		return { x: intersectionX, y: intersectionY }
+		})
+		this._isDrawing = false
 	}
 }
 

@@ -1,5 +1,5 @@
 import { mocked } from 'ts-jest/utils';
-import Graph from '../../data_structures/Graph'
+import Graph from '../../../core/data_structures/Graph'
 import { GraphCase } from './index'
 
 const graph = {

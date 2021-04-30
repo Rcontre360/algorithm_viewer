@@ -41,6 +41,10 @@ module.exports = {
 	},
 	resolve: {
 		extensions: ['.tsx', '.ts', '.js','.html'],
+		modules: [
+			path.resolve('./node_modules'),
+			path.resolve('./src')
+		]
 	},
 	output: {
 		path: path.resolve(__dirname, 'dist'),

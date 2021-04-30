@@ -1,14 +1,13 @@
 import React from 'react'
 import {render,screen} from '@testing-library/react'
 import {Provider,useSelector} from 'react-redux'
+import produce from 'immer'
 
-import BaseCanvas,{FIELDS as canvasFields} from '@adapters/Canvas/BaseCanvas'
-import LineDrawer,{FIELDS as lineFields} from '@adapters/shapes/Line'
-import store,{InitialState} from '@redux/store'
-import Canvas from './index'
+import BaseCanvas,{FIELDS as canvasFields} from '../../../adapters/Canvas'
+import store,{InitialState} from '../../../redux/store'
+import Canvas from '../../../components/Canvas/GraphCanvas'
 
-jest.mock('@adapters/Canvas/BaseCanvas')
-jest.mock('@adapters/shapes/Line')
+jest.mock('../../../adapters/Canvas')
 
 const mockAppState = store.getState() as InitialState
 jest.mock("react-redux", () => ({
@@ -24,15 +23,22 @@ const component = (
 	</Provider>
 )
 
-const clearFields = (obj:jest.Mock)=>{
+const clearFields = (obj:{[x:string]:jest.Mock<any,any>})=>{
 	Object.values(obj).forEach(fn=>fn.mockClear())
 }
 
+const updateUseSelector = (update:InitialState)=>{
+	(useSelector as any).mockImplementation((callback: any) => {
+		return callback(update);
+	});
+}
+
 beforeEach(()=>{
-	clearFields(canvasFields);
-	clearFields(lineFields);
+	const fields = {...canvasFields}
+	delete fields.drawer
+	clearFields(fields);
+	clearFields(canvasFields.drawer);
 	(BaseCanvas as any).mockClear();
-	(LineDrawer as any).mockClear();
 })
 
 describe('Canvas should render properly',()=>{
@@ -40,11 +46,6 @@ describe('Canvas should render properly',()=>{
 	test('Render main canvas',()=>{
 		render(component)
 		expect(screen.getByRole('main-app')).toBeDefined()
-	})
-
-	test('Initialize line drawer',()=>{
-		render(component)
-		expect(LineDrawer).toHaveBeenCalledTimes(1)
 	})
 
 	test('Initialize base canvas',()=>{
@@ -63,25 +64,15 @@ describe('Canvas should add edges and Nodes',()=>{
 
 	test('Remove drawing lines when nodes allowed',()=>{
 		render(component)
-		expect(lineFields.removeDrawingEvents).toHaveBeenCalledTimes(1)
+		expect(canvasFields.drawer.removeDrawingEvents).toHaveBeenCalledTimes(1)
 	})
 
 	test('Not add nodes when not allowed',()=>{
-
-		const localMockState:InitialState = {
-			...mockAppState,
-			algorithm:{
-				...mockAppState.algorithm,
-				options:{
-					...mockAppState.algorithm.options,
-					addNode:false,
-				}
-			}
-		};
-
-		(useSelector as any).mockImplementation((callback: any) => {
-			return callback(localMockState);
+		const newState = produce(mockAppState, draft => {
+			draft.algorithm.options.addNode = false;
 		});
+
+		updateUseSelector(newState)
 		render(component)
 
 		expect(canvasFields.off).toHaveBeenCalledTimes(1)
@@ -89,31 +80,31 @@ describe('Canvas should add edges and Nodes',()=>{
 	})
 
 	test('Add edges',()=>{
-		const localMockState: InitialState = {
-			...mockAppState,
-			algorithm: {
-				...mockAppState.algorithm,
-				options: {
-					...mockAppState.algorithm.options,
-					addNode: false,
-					addEdge:true,
-				}
-			}
-		};
-
-		(useSelector as any).mockImplementation((callback: any) => {
-			return callback(localMockState);
-		});
+		const newState = produce(mockAppState,draft=>{
+			draft.algorithm.options.addNode = false
+			draft.algorithm.options.addEdge = true
+		})
+		updateUseSelector(newState)
 
 		render(component);
-		expect(lineFields.setDrawingEvents).toHaveBeenCalledTimes(1)
+		expect(canvasFields.drawer.setDrawingEvents).toHaveBeenCalledTimes(1)
 	})
 
 	test('Set directed',()=>{
 		render(component);
 		expect(canvasFields.renderAll).toHaveBeenCalledTimes(1)
 		expect(canvasFields.clear).toHaveBeenCalledTimes(1)
-		expect(lineFields.useArrow).toHaveBeenCalledTimes(1)
+		expect(canvasFields.drawer.useArrow).toHaveBeenCalledTimes(1)
 	})
+
+	// test('Running algorithm',()=>{
+	// 	const newState = produce(mockAppState, draft => {
+	// 		draft.common.running = true;
+	// 		draft.algorithm.output = []
+	// 	})
+	// 	updateUseSelector(newState)
+	// 	render(component)
+			//HOW TO TESTS?
+	// })
 
 })

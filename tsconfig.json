@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"baseUrl": ".",
 		"rootDir": "./src",
 		"outDir": "./dist",
 		"target": "es5",
@@ -22,10 +23,10 @@
 		"noEmit": false,
 		"jsx": "react-jsx",
 		"paths": {
-			"@core/*": ["src/core/*"],
-			"@redux/*": ["src/redux/*"],
-			"@adapters/*": ["src/adapters/*"],
-			"@components/*": ["src/components/*"],
+			"*": [
+         "*",
+         "src/*"
+      ],
 		}
 	},
 	"include": [

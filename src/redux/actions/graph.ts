@@ -8,7 +8,7 @@ import {
 import { AppDispatch } from '../store'
 import { GraphCase } from '../../core'
 
-export const allowAddEdge = () => {
+export const onAllowAddEdge = () => {
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: ALLOW_ADD_EDGE,
@@ -17,7 +17,7 @@ export const allowAddEdge = () => {
 	};
 };
 
-export const allowAddNode = () => {
+export const onAllowAddNode = () => {
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: ALLOW_ADD_NODE,
@@ -26,7 +26,7 @@ export const allowAddNode = () => {
 	}
 }
 
-export const addNode = (nodeData: GraphType) => {
+export const onAddNode = (nodeData: GraphType) => {
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: ADD_NODE,
@@ -35,7 +35,7 @@ export const addNode = (nodeData: GraphType) => {
 	}
 }
 
-export const addEdge = (connection: { src: number | GraphType, dest: number | GraphType }) => {
+export const onAddEdge = (connection: { src: number | GraphType, dest: number | GraphType }) => {
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: ADD_EDGE,

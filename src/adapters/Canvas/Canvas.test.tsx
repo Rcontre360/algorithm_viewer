@@ -1,5 +1,9 @@
 import {fabric} from 'fabric'
-import BaseCanvas from './index'
+
+import LineDrawer from '../shapes/Line'
+import Canvas from './index'
+
+jest.mock('../shapes/Line')
 
 const getCircle = (obj:{x:number,y:number})=>{
 	return new fabric.Circle({
@@ -31,20 +35,25 @@ jest.spyOn(containerHtml, 'clientHeight', 'get')
 jest.spyOn(containerHtml, 'clientWidth', 'get')
 	.mockImplementation(() => maxWidth);
 
-let canvas: BaseCanvas
+let canvas: Canvas
 beforeEach(() => {
-	canvas = new BaseCanvas(canvasId, containerId)
+	(LineDrawer as any).mockClear()
+	canvas = new Canvas(canvasId, containerId);
 })
 
-describe('BaseCanvas should initialize properly',()=>{
+describe('Canvas should initialize properly',()=>{
 
 	test('Call with wrong container id throws error',()=>{
-		expect(()=>new BaseCanvas(canvasId,'')).toThrow()
+		expect(()=>new Canvas(canvasId,'')).toThrow()
+	})
+
+	test('Initialize line Drawer',()=>{
+		expect(LineDrawer).toHaveBeenCalledTimes(1)
 	})
 
 })
 
-describe('BaseCanvas should execute its methods',()=>{
+describe('Canvas should execute its methods',()=>{
 
 	const coordenades = [{ x: 100, y: 100 }, { x:200, y:200 }, { x:300, y:300 }]
 	const circles = [
@@ -52,6 +61,14 @@ describe('BaseCanvas should execute its methods',()=>{
 		getCircle(coordenades[1]),
 		getCircle(coordenades[2])
 	]
+	const circleLineIntersectionData = {
+		line: new fabric.Line([5, 10]),
+		circle: new fabric.Circle({left: 100, top: 100, radius: 20}),
+		result: {
+			x: 85.4809463, 
+			y: 86.2451070
+		}
+	}
 
 	beforeEach(()=>{
 		canvas.clear()
@@ -71,6 +88,12 @@ describe('BaseCanvas should execute its methods',()=>{
 		canvas.add(circleIntersect)
 		const circleRes = canvas.getObjectsIntersect(circleIntersect)
 		expect(circleRes).toEqual([circles[0],circleIntersect])
+	})
+
+	test('Get circle-line intersection point', () => {
+		const {line,circle,result} = circleLineIntersectionData
+		expect(canvas.getCircleLineIntersection(line,circle).x).toBeCloseTo(result.x,6)
+		expect(canvas.getCircleLineIntersection(line,circle).y).toBeCloseTo(result.y,6)
 	})
 
 })

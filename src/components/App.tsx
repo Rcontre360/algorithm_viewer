@@ -1,16 +1,14 @@
 import React,{useState,useEffect} from "react"
 import { fabric } from "fabric"
-import { useDispatch } from 'react-redux';
 import { applyMiddleware, createStore } from 'redux'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import {makeStyles} from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 
-import {nodeStyles,edgeStyles} from './shape_styles'
-import {Canvas as ShapeCanvas} from "../adapters"
-import {allowAddNode,allowAddEdge,startAlgorithm,onSetDirected} from '../redux/actions'
-import Canvas from './Canvas/GraphCanvas'
+import { useDispatch,useSelector } from 'redux/hooks';
+import Canvas from 'components/Canvas/GraphCanvas'
+import {allowAddNode,allowAddEdge,startAlgorithm,onSetDirected} from 'redux/actions'
 
 const useStyles = makeStyles((theme)=>({
 	canvasContainer:{
@@ -26,28 +24,9 @@ const useStyles = makeStyles((theme)=>({
 }))
 
 const App = ()=>{
-	const [canvas,setCanvas] = useState<ShapeCanvas | undefined>(undefined)
-	const [isDirected,setIsDirected] = useState<boolean>(false)
-	const [addNode,setAddNode] = useState<boolean>(false)
-	const [addEdges,setAddEdges] = useState<boolean>(false)
-	const classes = useStyles()
+	const {addNode,addEdge,directed} = useSelector(({algorithm,common})=>({...algorithm,...common}))
 	const dispatch = useDispatch()
-
-	useEffect(()=>{
-		setCanvas(new ShapeCanvas({
-			canvasId:"main_canvas",
-			containerId:"canvas_container",
-			nodeStyles,
-			edgeStyles
-		}))
-	},[]);
-
-	useEffect(()=>{
-		if (addNode)
-			setAddEdges(false)
-		if (addEdges)
-			setAddNode(false)
-	},[addNode,addEdges])
+	const classes = useStyles()
 
 	return (
 	<Box
@@ -79,15 +58,15 @@ const App = ()=>{
 			</Button>
 			<Button
 				variant="contained"
-				className={addEdges?classes.buttonOn:classes.buttonOff}
+				className={addEdge?classes.buttonOn:classes.buttonOff}
 				onClick={()=>allowAddEdge()(dispatch)}
 			>
 				Add edges
 			</Button>
 			<Button
 				variant="contained"
-				className={isDirected?classes.buttonOn:classes.buttonOff}
-				onClick={()=>onSetDirected(!isDirected)(dispatch)}
+				className={directed?classes.buttonOn:classes.buttonOff}
+				onClick={()=>onSetDirected(!directed)(dispatch)}
 			>
 				Set directed
 			</Button>

@@ -4,12 +4,17 @@ export const FIELDS = {
 	setDrawingEvents:jest.fn(),
 	removeDrawingEvents:jest.fn(),
 	useArrow:jest.fn(),
-	_addEdgesHandler:jest.fn(),
-	_getNodeUnderMouse:jest.fn(),
-	_drawLineHandler:jest.fn(),
+	on:jest.fn(),
+	setLine:jest.fn(),
+	getLine:jest.fn(),
+
+	_mouseDownHandler:jest.fn(),
+	_mouseMoveHandler: jest.fn(),
+	_mouseUpHandler: jest.fn(),
+	_onMouseDown:jest.fn(),
+	_onMouseMove: jest.fn(),
 	_isDrawable:jest.fn(),
-	_stopDrawing:jest.fn(),
-	_getCircleLineIntersection:jest.fn()
+	_onMouseUp: jest.fn(),
 }
 
 const LineMock = jest.fn().mockImplementation(()=>{
