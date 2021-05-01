@@ -7,7 +7,7 @@ import {
 } from '../action_types';
 import { AppDispatch } from '../store'
 
-export const startAlgorithm = () => {
+export const onStartAlgorithm = () => {
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: START_ALGORITHM,
@@ -16,7 +16,7 @@ export const startAlgorithm = () => {
 	}
 }
 
-export const stopAlgorithm = () => {
+export const onStopAlgorithm = () => {
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: STOP_ALGORITHM,

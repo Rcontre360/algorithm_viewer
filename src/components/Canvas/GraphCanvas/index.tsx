@@ -1,146 +1,82 @@
-import React, {useState,useEffect} from 'react';
+import React, {useState,useEffect,MouseEvent} from 'react';
 import {fabric} from 'fabric'
 import produce from 'immer'
+import ReactFlow,{
+	addEdge as flowAddEdge,
+	MiniMap,
+	Controls,
+	Background,
+	Connection,
+	Edge
+} from 'react-flow-renderer';
 
-import {onAddNode} from '../../../redux/actions'
+import CustomNodes from '../../Nodes'
+import {onAddNode,onAddEdge} from '../../../redux/actions'
 import {useSelector,useDispatch} from '../../../redux/hooks'
-import BaseCanvas from '../../../adapters/Canvas'
-import LineDrawer from '../../../adapters/shapes/Line'
-import {nodeStyles,edgeStyles} from '../../../components/shape_styles'
 import {AlgorithmCaseReturn} from '../../../core/index'
 
-const Canvas = (props:{}) => {
+const Canvas = (props:React.HTMLAttributes<any>) => {
 	const { 
 		options: { directed, addNode, addEdge },
 		output,
 		running
 	} = useSelector(({algorithm,common})=>({...algorithm,...common}))
+	const [nodes, setNodes] = useState<any>([])
 	const dispatch = useDispatch()
-	
-	const [canvas,setCanvas] = useState<BaseCanvas>()
 
-	function colorNodes(action: AlgorithmCaseReturn<fabric.Circle>){
-		if (action.forward)
-			colorNodesForward(action)
-		else
-			colorNodesBackward(action)
-		canvas!.renderAll()
-	}
+	function handleAddNode(event: MouseEvent) {
+		const radius = 30
+		const container = event.target as HTMLElement
+		const rect = container.getBoundingClientRect();
+		const x = event.clientX - rect.left - radius; 
+		const y = event.clientY - rect.top - radius;  
 
-	function colorNodesForward(action: AlgorithmCaseReturn<fabric.Circle>){
-		const lines = canvas!.drawer!.lines;
-		(action.toData as fabric.Circle).set(nodeStyles.active)
-		if (action.from !== -1)
-			lines[action.edgeIndex].set(edgeStyles.active)
-	}
-
-	function colorNodesBackward(action: AlgorithmCaseReturn<fabric.Circle>){
-		const style = nodeStyles.visited
-		const lines = canvas!.drawer!.lines
-		if (action.from !== -1) {
-			(action.fromData as fabric.Circle).set(style)
-		} else {
-			(action.toData as fabric.Circle).set(style)
+		const newNode = {
+			id: `node-${nodes.length}`,
+			type:'graphNode',
+			data: { label: 'Node' },
+			position: { x, y },
+			style: {
+				width: radius,
+				height: radius,
+				borderRadius: '100%',
+				border:'solid lightgrey 3px'
+			}
 		}
-		if (action.to !== -1)
-			lines[action.edgeIndex].set(edgeStyles.visited)
+		setNodes(produce((prev:any)=>{prev.push(newNode)}))
+		onAddNode(newNode.id)(dispatch)
 	}
 
-	function addNodeHandler(event: fabric.IEvent){
-		const pointer = event.pointer as fabric.Point
-		const circle = new fabric.Circle(nodeStyles.unactive);
-		circle.set({
-			top: pointer.y,
-			left: pointer.x
-		});
-		canvas!.add(circle)
-		onAddNode(circle)(dispatch)
-	}
-
-	function onEdgeMouseDown(event: fabric.IEvent,onMouseDown:(event:fabric.IEvent)=>void) {
-		if (!canvas!.isMouseIntoObject(event, 'Circle'))
-			return
-		onMouseDown(event)
-	}
-
-	function onEdgeMouseUp(event:fabric.IEvent,onMouseUp:(event:fabric.IEvent)=>void){
-		if (!canvas!.isMouseIntoObject(event, 'Circle')) {
-			canvas!.remove(canvas!.drawer!.getLine())
-			canvas!.drawer!.getLine().set({
-				stroke: "transparent",
-			})
-			canvas!.renderAll()
-			return
-		}
-
-		const nodeOrigin: fabric.Circle = event.target as fabric.Circle
-		const nodeDestiny: fabric.Circle = canvas!.isMouseIntoObject(event, 'Circle') as fabric.Circle
-		let x = nodeDestiny.left as number
-		let y = nodeDestiny.top as number
-		const radius = nodeDestiny.radius as number
-
-		if (directed) {
-			const arrowCoords = canvas!.getCircleLineIntersection(canvas!.drawer!.getLine(), nodeDestiny)
-			x = arrowCoords.x
-			y = arrowCoords.y
-		}
-
-		canvas!.drawer!.getLine().set({
-			x2: (x as number),
-			y2: (y as number),
-			lockMovementX: true,
-			lockMovementY: true,
-		}).setCoords();
-		onMouseUp(event)
+	function handleAddEdge(params:Connection | Edge<any>){
+		setNodes((els:any)=>flowAddEdge(params, els));
+		onAddEdge({src:params.source,dest:params.target})(dispatch)
 	}
 
 	useEffect(()=>{
-		const canvas = new BaseCanvas('main_canvas', 'canvas_container')
-		canvas!.drawer!.on('mouse:down',onEdgeMouseDown)
-
-		setCanvas(canvas)
-	},[])
+		setNodes([])
+		//if directed set arrows
+	},[directed])
 
 	useEffect(()=>{
-		if (!canvas) return
 
-		if (addNode){
-			canvas!.on("mouse:down", addNodeHandler)
-			canvas!.drawer!.removeDrawingEvents()
-		} else
-			canvas!.off('mouse:down',addNodeHandler)
-
-		return () => {
-			canvas!.off('mouse:down', addNodeHandler)
-		}
-	},[addNode,canvas])
-
-	useEffect(()=>{
-		if (addEdge && canvas){
-			canvas!.off("mouse:down", addNodeHandler)
-			canvas!.drawer!.setDrawingEvents()
-		}
-	},[addEdge,canvas])
-
-	useEffect(()=>{
-		if (!canvas) return
-		canvas!.clear();
-		canvas!.renderAll();
-		canvas!.drawer!.useArrow(directed)
-	},[directed,canvas])
-
-	useEffect(()=>{
-		if (running){
-			//const lines = drawer.lines;
-			(output as [object]).forEach((action: object, i) => {
-				setTimeout(colorNodes, 800 * i, action)
-			})
-		}
 	},[running])
 
   return (
-  <div id='canvas_container'> 
-		<canvas id="main_canvas" role='main-app'></canvas>
+  <div 
+  	id='canvas_container' 
+  	style={{width:'100%',height:'100%'}}
+  	onClick={addNode?handleAddNode:()=>1}
+  	role='main-app'
+  	{...props}
+  > 
+		<ReactFlow 
+			role='app-canvas'
+			elements={nodes}
+			onConnect={handleAddEdge}
+			onElementClick={(event,element)=>console.log(element)}
+			nodeTypes={CustomNodes}
+		>
+		</ReactFlow>
 	</div>
   )
 }
