@@ -8,6 +8,7 @@ import {
 	START_ALGORITHM,
 	STOP_ALGORITHM,
 	SET_SPEED,
+	SET_DIRECTED
 } from '../action_types'
 import { InitialState, RootState } from '../store'
 import { IReduxAction } from '../interfaces'

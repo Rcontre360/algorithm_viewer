@@ -1,7 +1,7 @@
 import React, {useState,useEffect,MouseEvent} from 'react';
 import {fabric} from 'fabric'
 import produce from 'immer'
-import { Stage, Layer, Circle, Text, Line } from 'react-konva';
+import { Stage, Layer, Circle, Text, Line, Arrow } from 'react-konva';
 
 import { getRelativeCoordenades } from '../../../utils'
 import {onAddNode,onAddEdge} from '../../../redux/actions'
@@ -89,7 +89,7 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 
   return (
   <div 
-  	id='canvas_container' 
+  	data-testid='canvas_container' 
   	style={{width:'100%',height:'100%'}}
   	onClick={addNode?handleAddNode:()=>1}
   	role='main-app'
@@ -99,42 +99,51 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		}}
   	{...props}
   > 
+	{process.env.NODE_ENV !== 'test'
+		&&
 		<Stage width={window.innerWidth} height={window.innerHeight}>
 			<Layer>
-			{
-				nodes.map((node:NodeConfig,i:number)=>(
-					<Circle
-						key={i}
-						onMouseDown={()=>{
-							setEdges(produce((prev: any) => { 
-								prev.push({
-									stroke:'black',
-									srcNode:node,
-									points:[
-										node.x,
-										node.y,
-										node.x,
-										node.y
-									]
-								}) 
-							}))
-						}}
-						onMouseUp={()=>handleAddEdge(node)}
-						fill={'green'}
-						{...node}
-					/>
-				))
-			}
-			{
-				edges.map((edge:EdgeConfig,i:number)=>(
-					<Line
-						key={i}
-						{...edge}
-					/>
-				))
-			}
+				{
+					nodes.map((node: NodeConfig, i: number) => (
+						<Circle
+							key={i}
+							onMouseDown={() => {
+								setEdges(produce((prev: any) => {
+									prev.push({
+										stroke: 'black',
+										srcNode: node,
+										points: [
+											node.x,
+											node.y,
+											node.x,
+											node.y
+										]
+									})
+								}))
+							}}
+							onMouseUp={() => handleAddEdge(node)}
+							fill={'green'}
+							{...node}
+						/>
+					))
+				}
+				{
+					edges.map((edge: EdgeConfig, i: number) => (
+						directed ?
+							<Arrow
+								key={i}
+								{...edge}
+							/>
+							:
+							<Line
+								key={i}
+								{...edge}
+							/>
+					))
+				}
 			</Layer>
 		</Stage>
+	}
 	</div>
   )
 }

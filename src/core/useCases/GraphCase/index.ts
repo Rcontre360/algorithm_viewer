@@ -85,6 +85,13 @@ export class GraphCase < T extends GraphType > {
 		return algorithmData.map(obj => this.parseReturnValue(obj, edges))
 	}
 
+	getGraphData = () => {
+		return {
+			connections: this.graph.getAllNodeConnections(),
+			nodes: this.graph.getAllNodeData()
+		}
+	}
+
 	private parseReturnValue = (obj: GraphReturn, edges: IGraphEdge[]) => {
 		const newObject = { ...obj } as AlgorithmCaseReturn < T > ;
 

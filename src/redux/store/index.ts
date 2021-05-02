@@ -14,6 +14,7 @@ interface IAlgorithmState {
 		readonly addNode: boolean;
 		readonly addEdge: boolean;
 		readonly directed: boolean;
+		readonly data: any;
 	};
 	output: any;
 }
