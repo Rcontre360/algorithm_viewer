@@ -33,7 +33,7 @@ const initialState: IInitialState = {
 		dataStructure: 'graph',
 		output: undefined,
 		options: {
-			addNode: true,
+			addNode: false,
 			addEdge: false,
 			directed: false
 		}

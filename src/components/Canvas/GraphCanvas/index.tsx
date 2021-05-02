@@ -1,19 +1,27 @@
 import React, {useState,useEffect,MouseEvent} from 'react';
 import {fabric} from 'fabric'
 import produce from 'immer'
-import ReactFlow,{
-	addEdge as flowAddEdge,
-	MiniMap,
-	Controls,
-	Background,
-	Connection,
-	Edge
-} from 'react-flow-renderer';
+import { Stage, Layer, Circle, Text, Line } from 'react-konva';
 
-import CustomNodes from '../../Nodes'
+import { getRelativeCoordenades } from '../../../utils'
 import {onAddNode,onAddEdge} from '../../../redux/actions'
 import {useSelector,useDispatch} from '../../../redux/hooks'
 import {AlgorithmCaseReturn} from '../../../core/index'
+
+interface NodeConfig{
+	id: string;
+	x:number;
+	y: number;
+	radius:number;
+	fill?: string;
+	shadowBlur?: number;
+}
+
+interface EdgeConfig{
+	points:[number,number,number,number],
+	srcNode?:NodeConfig,
+	destNode?:NodeConfig,
+}
 
 const Canvas = (props:React.HTMLAttributes<any>) => {
 	const { 
@@ -21,35 +29,51 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		output,
 		running
 	} = useSelector(({algorithm,common})=>({...algorithm,...common}))
-	const [nodes, setNodes] = useState<any>([])
+
+	const [nodes, setNodes] = useState<[]|[NodeConfig]>([])
+	const [edges,setEdges] = useState<[]|[EdgeConfig]>([])
 	const dispatch = useDispatch()
+	const nodeSize = 20;
 
 	function handleAddNode(event: MouseEvent) {
-		const radius = 30
-		const container = event.target as HTMLElement
-		const rect = container.getBoundingClientRect();
-		const x = event.clientX - rect.left - radius; 
-		const y = event.clientY - rect.top - radius;  
-
+		const {x,y} = getRelativeCoordenades(event) 
 		const newNode = {
-			id: `node-${nodes.length}`,
-			type:'graphNode',
-			data: { label: 'Node' },
-			position: { x, y },
-			style: {
-				width: radius,
-				height: radius,
-				borderRadius: '100%',
-				border:'solid lightgrey 3px'
-			}
+			x:x,
+			y:y,
+			radius:nodeSize,
+			id:`node-${nodes.length}`
 		}
 		setNodes(produce((prev:any)=>{prev.push(newNode)}))
 		onAddNode(newNode.id)(dispatch)
 	}
 
-	function handleAddEdge(params:Connection | Edge<any>){
-		setNodes((els:any)=>flowAddEdge(params, els));
-		onAddEdge({src:params.source,dest:params.target})(dispatch)
+	function handleAddEdge(node:NodeConfig){
+		const last = getLastEdge(edges)
+		const points = last.points
+		const {x,y} = node
+
+		if (x!==points[0] && y!==points[1]){
+			setEdges(produce((prev: any) => {
+				const line = getLastEdge(prev)
+				line.points[2] = x
+				line.points[3] = y
+				line.destNode = node
+			}))
+			onAddEdge({src:last.srcNode!.id,dest:node.id})(dispatch)
+		}
+	}
+
+	function updateCurrentLine(event:React.MouseEvent){
+		setEdges(produce((prev:any)=>{
+			const { x, y } = getRelativeCoordenades(event)
+			const points = getLastEdge(prev).points
+			points[2] = x
+			points[3] = y
+		}))
+	}
+
+	function getLastEdge(edges:[EdgeConfig]|[]){
+		return edges[edges.length-1] || {destNode:true}
 	}
 
 	useEffect(()=>{
@@ -58,7 +82,9 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 	},[directed])
 
 	useEffect(()=>{
-
+		if (running){
+			console.log(output)
+		}
 	},[running])
 
   return (
@@ -67,16 +93,48 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
   	style={{width:'100%',height:'100%'}}
   	onClick={addNode?handleAddNode:()=>1}
   	role='main-app'
+		onMouseMove={event => {
+			if (getLastEdge(edges).destNode) return
+			updateCurrentLine(event)
+		}}
   	{...props}
   > 
-		<ReactFlow 
-			role='app-canvas'
-			elements={nodes}
-			onConnect={handleAddEdge}
-			onElementClick={(event,element)=>console.log(element)}
-			nodeTypes={CustomNodes}
-		>
-		</ReactFlow>
+		<Stage width={window.innerWidth} height={window.innerHeight}>
+			<Layer>
+			{
+				nodes.map((node:NodeConfig,i:number)=>(
+					<Circle
+						key={i}
+						onMouseDown={()=>{
+							setEdges(produce((prev: any) => { 
+								prev.push({
+									stroke:'black',
+									srcNode:node,
+									points:[
+										node.x,
+										node.y,
+										node.x,
+										node.y
+									]
+								}) 
+							}))
+						}}
+						onMouseUp={()=>handleAddEdge(node)}
+						fill={'green'}
+						{...node}
+					/>
+				))
+			}
+			{
+				edges.map((edge:EdgeConfig,i:number)=>(
+					<Line
+						key={i}
+						{...edge}
+					/>
+				))
+			}
+			</Layer>
+		</Stage>
 	</div>
   )
 }
