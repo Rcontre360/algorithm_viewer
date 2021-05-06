@@ -2,14 +2,16 @@ import { createStore, Store } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension';
 import mainReducer from '../reducer'
 
-interface ICommonState {
+interface CommonState {
 	speed: number;
 	running: boolean;
+	algorithm: {
+		name: 'dfs';
+		dataStructure: 'graph';
+	}
 }
 
-interface IAlgorithmState {
-	name: 'dfs';
-	dataStructure: string;
+interface AlgorithmState {
 	options: {
 		readonly addNode: boolean;
 		readonly addEdge: boolean;
@@ -20,23 +22,26 @@ interface IAlgorithmState {
 }
 
 interface IInitialState {
-	common: Readonly < ICommonState > ;
-	algorithm: Readonly < IAlgorithmState > ;
+	common: Readonly < CommonState > ;
+	graph: Readonly < AlgorithmState > ;
 }
 
-const initialState: IInitialState = {
+export const initialState: IInitialState = {
 	common: {
 		speed: 1,
 		running: false,
+		algorithm: {
+			name: 'dfs',
+			dataStructure: 'graph',
+		}
 	},
-	algorithm: {
-		name: 'dfs',
-		dataStructure: 'graph',
+	graph: {
 		output: undefined,
 		options: {
 			addNode: false,
 			addEdge: false,
-			directed: false
+			directed: false,
+			data: undefined
 		}
 	},
 }

@@ -4,7 +4,12 @@ import produce from 'immer'
 import { Stage, Layer, Circle, Text, Line, Arrow } from 'react-konva';
 
 import { getRelativeCoordenades } from '../../../utils'
-import {onAddNode,onAddEdge} from '../../../redux/actions'
+import {
+	onAddNode,
+	onAddEdge,
+	onSetAlgorithm,
+	onSetDataStructure
+} from '../../../redux/actions'
 import {useSelector,useDispatch} from '../../../redux/hooks'
 import {AlgorithmCaseReturn} from '../../../core/index'
 
@@ -26,12 +31,13 @@ interface EdgeConfig{
 const Canvas = (props:React.HTMLAttributes<any>) => {
 	const { 
 		options: { directed, addNode, addEdge },
+		algorithm:{name,dataStructure},
 		output,
-		running
-	} = useSelector(({algorithm,common})=>({...algorithm,...common}))
+		running,
+	} = useSelector(({graph,common})=>({...graph,...common}))
 
-	const [nodes, setNodes] = useState<[]|[NodeConfig]>([])
-	const [edges,setEdges] = useState<[]|[EdgeConfig]>([])
+	const [nodes, setNodes] = useState<NodeConfig[]>([])
+	const [edges, setEdges] = useState<EdgeConfig[]>([])
 	const dispatch = useDispatch()
 	const nodeSize = 20;
 
@@ -72,13 +78,12 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		}))
 	}
 
-	function getLastEdge(edges:[EdgeConfig]|[]){
+	function getLastEdge(edges: EdgeConfig[]) {
 		return edges[edges.length-1] || {destNode:true}
 	}
 
 	useEffect(()=>{
 		setNodes([])
-		//if directed set arrows
 	},[directed])
 
 	useEffect(()=>{
@@ -86,6 +91,14 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 			console.log(output)
 		}
 	},[running])
+
+	useEffect(()=>{
+		onSetAlgorithm(name)(dispatch)
+	},[name]);
+
+	useEffect(() => {
+		onSetDataStructure(dataStructure)(dispatch)
+	}, [dataStructure]);
 
   return (
   <div 
@@ -101,7 +114,21 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
   > 
 	{process.env.NODE_ENV !== 'test'
 		&&
-		<Stage width={window.innerWidth} height={window.innerHeight}>
+		<Stage 
+			width={window.innerWidth} 
+			height={window.innerHeight}
+			onMouseUp={({target})=>{
+				if (!addEdge) return; 
+				const {attrs} = target
+				const {id} = attrs
+
+				if (id && id.includes('node')){
+					handleAddEdge(attrs)
+				}
+				else
+					setEdges(produce(prev=>{prev.pop()}))
+			}}
+		>
 			<Layer>
 				{
 					nodes.map((node: NodeConfig, i: number) => (
@@ -121,7 +148,6 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 									})
 								}))
 							}}
-							onMouseUp={() => handleAddEdge(node)}
 							fill={'green'}
 							{...node}
 						/>

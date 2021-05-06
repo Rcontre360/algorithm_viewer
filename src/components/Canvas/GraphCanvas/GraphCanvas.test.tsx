@@ -3,13 +3,11 @@ import {render,screen,fireEvent} from '@testing-library/react'
 import {Provider,useSelector} from 'react-redux'
 import produce from 'immer'
 
-import {onAddNode} from '../../../redux/actions'
+import * as actions from '../../../redux/actions'
 import store,{InitialState} from '../../../redux/store'
 import Canvas from '../../../components/Canvas/GraphCanvas'
 
-jest.mock('../../../redux/actions',()=>({
-	onAddNode:jest.fn(()=>jest.fn())
-}))
+jest.mock('../../../redux/actions')
 
 const mockAppState = store.getState() as InitialState
 jest.mock("react-redux", () => ({
@@ -34,7 +32,7 @@ const updateUseSelector = (update:InitialState)=>{
 }
 
 beforeEach(()=>{
-	(onAddNode as any).mockClear()
+	(actions.onAddNode as any).mockClear()
 })
 
 describe('Canvas should render properly',()=>{
@@ -50,25 +48,25 @@ describe('Canvas should add edges and Nodes',()=>{
 
 	test('Nodes when allowed',()=>{
 		const newState = produce(mockAppState, draft => {
-			draft.algorithm.options.addNode = true;
+			draft.graph.options.addNode = true;
 		});
 
 		updateUseSelector(newState)
 		render(component)
 		fireEvent.click(screen.getByTestId(canvasId))
-		expect(onAddNode).toHaveBeenCalledTimes(1)
-		expect(onAddNode).toHaveBeenCalledWith('node-0')
+		expect(actions.onAddNode).toHaveBeenCalledTimes(1)
+		expect(actions.onAddNode).toHaveBeenCalledWith('node-0')
 	})
 
 	test('Not add nodes when not allowed',()=>{
 		const newState = produce(mockAppState, draft => {
-			draft.algorithm.options.addNode = false;
+			draft.graph.options.addNode = false;
 		});
 
 		updateUseSelector(newState)
 		render(component)
 		fireEvent.click(screen.getByTestId(canvasId))
-		expect(onAddNode).toHaveBeenCalledTimes(0)
+		expect(actions.onAddNode).toHaveBeenCalledTimes(0)
 	})
 
 	test('Add edges',()=>{

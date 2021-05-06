@@ -8,6 +8,7 @@ export interface AlgorithmCaseReturn < T > extends GraphReturn {
 
 export class GraphCase < T extends GraphType > {
 
+	static signature = 'graph'
 	private onAddNode: Function | undefined;
 	private onAddEdge: Function | undefined;
 	private _canAddNode: boolean = false;
@@ -78,8 +79,8 @@ export class GraphCase < T extends GraphType > {
 		this.algorithm = algorithm
 	}
 
-	startAlgorithm = (options ? : object) => {
-		const algorithmData = this.algorithm!(this.graph, options) as GraphReturn[]
+	startAlgorithm = (algorithm: GraphAlgorithm < unknown, GraphReturn[] > , options ? : object) => {
+		const algorithmData = algorithm!(this.graph, options) as GraphReturn[]
 		const edges = this.graph.getEdges()
 
 		return algorithmData.map(obj => this.parseReturnValue(obj, edges))
@@ -112,3 +113,5 @@ export class GraphCase < T extends GraphType > {
 	}
 
 };
+
+export default GraphCase

@@ -3,56 +3,61 @@ interface DFSOptions {
 	previousIndex: number;
 }
 
-let visited: boolean[] = []
-let DFSreturn: GraphReturn[] = []
+export class DFS {
+	static visited: boolean[] = [];
+	static returnValue: GraphReturn[] = [];
 
-const deepFirstSearch = < T extends object > (graph: GraphInterface < T > , options: DFSOptions): void => {
+	static start = (
+		graph: GraphInterface < unknown > ,
+		options: DFSOptions = {
+			startIndex: 0,
+			previousIndex: -1
+		}
+	) => {
 
-	const {
-		startIndex,
-		previousIndex,
-	} = options
+		DFS.returnValue = []
+		DFS.visited = new Array(graph.getNumberOfElements())
+		DFS.visited.fill(false)
+		DFS.DFS(graph, options)
+		console.log(DFS.returnValue)
+		return DFS.returnValue;
+	}
 
-	if (graph.getNumberOfElements() <= startIndex)
-		return
+	static DFS = (
+		graph: GraphInterface < unknown > ,
+		options: DFSOptions
+	) => {
+		const {
+			startIndex,
+			previousIndex,
+		} = options
 
-	visited[startIndex] = true
-	DFSreturn.push({
-		forward: true,
-		from: previousIndex,
-		to: startIndex
-	})
+		if (graph.getNumberOfElements() <= startIndex)
+			return
 
-	const nodes: number[] = graph.getNodeConnections(startIndex)
+		DFS.visited[startIndex] = true
+		DFS.returnValue.push({
+			forward: true,
+			from: previousIndex,
+			to: startIndex
+		})
 
-	for (let i = 0; i < nodes.length; i++)
-		if (!visited[nodes[i]])
-			deepFirstSearch(graph, { ...options,
-				startIndex: nodes[i],
-				previousIndex: startIndex
-			})
+		const nodes: number[] = graph.getNodeConnections(startIndex)
 
-	DFSreturn.push({
-		forward: false,
-		from: startIndex,
-		to: previousIndex
-	})
+		for (let i = 0; i < nodes.length; i++)
+			if (!DFS.visited[nodes[i]])
+				DFS.DFS(graph, {
+					...options,
+					startIndex: nodes[i],
+					previousIndex: startIndex
+				})
+
+		DFS.returnValue.push({
+			forward: false,
+			from: startIndex,
+			to: previousIndex
+		})
+	}
 }
 
-const driverFunction: GraphAlgorithm < GraphInterface < object > , GraphReturn[] > = (
-	graph: GraphInterface < object > ,
-	options: DFSOptions = {
-		startIndex: 0,
-		previousIndex: -1
-	}): GraphReturn[] => {
-
-	DFSreturn = []
-	visited = new Array(graph.getNumberOfElements())
-	visited.fill(false)
-	deepFirstSearch(graph, options)
-	return DFSreturn
-}
-
-export {
-	driverFunction as DFS
-}
+export default DFS

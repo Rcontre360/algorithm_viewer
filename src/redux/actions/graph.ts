@@ -6,58 +6,56 @@ import {
 	SET_DIRECTED,
 } from '../action_types'
 import { AppDispatch } from '../store'
-import { GraphCase } from '../../core'
-
-const graph = new GraphCase()
+import { Manager } from '../../core'
 
 export const onAllowAddEdge = () => {
-	graph.canAddEdge = true
+	Manager.dataStructure.canAddEdge = true
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: ALLOW_ADD_EDGE,
 			payload: {
-				addEdge: graph.canAddEdge,
-				addNode: graph.canAddNode
+				addEdge: Manager.dataStructure.canAddEdge,
+				addNode: Manager.dataStructure.canAddNode
 			},
 		})
 	};
 };
 
 export const onAllowAddNode = () => {
-	graph.canAddNode = true
+	Manager.dataStructure.canAddNode = true
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: ALLOW_ADD_NODE,
 			payload: {
-				addEdge: graph.canAddEdge,
-				addNode: graph.canAddNode
+				addEdge: Manager.dataStructure.canAddEdge,
+				addNode: Manager.dataStructure.canAddNode
 			}
 		})
 	}
 }
 
 export const onAddNode = (nodeData: GraphType) => {
-	graph.addNode(nodeData)
+	Manager.dataStructure.addNode(nodeData)
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: ADD_NODE,
-			payload: graph.getGraphData(),
+			payload: Manager.dataStructure.getGraphData(),
 		})
 	}
 }
 
 export const onAddEdge = (connection: { src: number | GraphType, dest: number | GraphType }) => {
-	graph.addEdge(src, dest)
+	Manager.dataStructure.addEdge(connection.src, connection.dest)
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: ADD_EDGE,
-			payload: graph.getGraphData()
+			payload: Manager.dataStructure.getGraphData()
 		})
 	}
 }
 
 export const onSetDirected = (isDirected: boolean) => {
-	graph.setDirected(isDirected)
+	Manager.dataStructure.setDirected(isDirected)
 	return (dispatch: AppDispatch) => {
 		return dispatch({
 			type: SET_DIRECTED,

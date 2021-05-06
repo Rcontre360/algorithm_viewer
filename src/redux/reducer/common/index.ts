@@ -1,10 +1,19 @@
 import produce from 'immer'
 import * as actions from '../../action_types'
-import { InitialState, RootState } from '../../store'
+import { initialState, RootState } from '../../store'
 import { IReduxAction } from '../../interfaces'
-import { GraphCase, algorithms } from '../../../core'
+import { GraphCase } from '../../../core'
 
-const commonReducer: RootState = (state: InitialState, action: IReduxAction) => {
+export const commonState = {
+	speed: 1,
+	running: false,
+	algorithm: {
+		name: 'dfs',
+		dataStructure: 'graph',
+	}
+}
+
+const commonReducer: RootState = (state = commonState, action: IReduxAction) => {
 
 	switch (action.type) {
 		case actions.SET_ALGORITHM:
@@ -15,13 +24,11 @@ const commonReducer: RootState = (state: InitialState, action: IReduxAction) => 
 			return state;
 		case actions.START_ALGORITHM:
 			return produce(state, state => {
-				state.common.running = true
-				state.algorithm.output = action.payload
+				state.running = true
 			})
 		case actions.STOP_ALGORITHM:
 			return produce(state, state => {
-				state.common.running = false
-				state.algorithm.output = undefined
+				state.running = false
 			})
 		case actions.SET_SPEED:
 

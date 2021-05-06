@@ -1,5 +1,5 @@
 import {Graph} from '../../../core/data_structures/Graph'
-import { DFS } from './index'
+import DFS from './index'
 
 describe('DFS should return right values', () => {
 	let graph: Graph < string > ;
@@ -19,7 +19,7 @@ describe('DFS should return right values', () => {
 	})
 
 	test('Return value', () => {
-		expect(DFS(graph, {
+		expect(DFS.start(graph, {
 			startIndex: 0,
 			previousIndex: -1
 		})).toEqual(rightIndirectedReturn)

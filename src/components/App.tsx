@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme)=>({
 const App = ()=>{
 	const {
 		options:{addNode,addEdge,directed}
-	} = useSelector(({algorithm,common})=>({...algorithm,...common}))
+	} = useSelector(({graph,common})=>({...graph,...common}))
 	const dispatch = useDispatch()
 	const classes = useStyles()
 
@@ -73,12 +73,7 @@ const App = ()=>{
 				Set directed
 			</Button>
 		</Box>
-		<div 
-			id="canvas_container" 
-			className={classes.canvasContainer}
-		>
-			<Canvas/>
-		</div>
+		<Canvas/>
 	</Box>
 	)
 }

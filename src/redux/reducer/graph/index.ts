@@ -1,29 +1,47 @@
 import produce from 'immer'
 import * as actions from '../../action_types'
-import { InitialState, RootState } from '../../store'
+import { initialState, RootState } from '../../store'
 import { IReduxAction } from '../../interfaces'
 
-const mainReducer: RootState = (state: InitialState, action: IReduxAction) => {
+export const graphState = {
+	output: undefined,
+	options: {
+		addNode: false,
+		addEdge: false,
+		directed: false,
+		data: undefined
+	}
+}
+
+const mainReducer: RootState = (state = graphState, action: IReduxAction) => {
 
 	switch (action.type) {
 		case actions.ADD_EDGE:
 			return produce(state, state => {
-				state.algorithm.options.data = action.payload
+				state.options.data = action.payload
 			});
 		case actions.ADD_NODE:
 			return produce(state, state => {
-				state.algorithm.options.data = action.payload
+				state.options.data = action.payload
 			});
 		case actions.ALLOW_ADD_EDGE:
 			return produce(state, state => {
-				state.algorithm.options.addNode = action.payload.addNode
-				state.algorithm.options.addEdge = action.payload.addEdge
+				state.options.addNode = action.payload.addNode
+				state.options.addEdge = action.payload.addEdge
 			})
 		case actions.ALLOW_ADD_NODE:
-			return produce(state => {
-				state.algorithm.options.addNode = action.payload.addNode
-				state.algorithm.options.addEdge = action.payload.addEdge
-			}, state)
+			return produce(state, state => {
+				state.options.addNode = action.payload.addNode
+				state.options.addEdge = action.payload.addEdge
+			})
+		case actions.START_ALGORITHM:
+			return produce(state, state => {
+			state.output = action.payload
+			})
+		case actions.STOP_ALGORITHM:
+			return produce(state, state => {
+				state.output = undefined
+			})
 		default:
 			return state;
 	}

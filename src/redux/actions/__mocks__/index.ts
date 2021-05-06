@@ -1,0 +1,9 @@
+export const onStartAlgorithm = jest.fn(() => jest.fn());
+export const onStopAlgorithm = jest.fn(() => jest.fn());
+export const onSetAlgorithm = jest.fn(() => jest.fn());
+export const onSetDataStructure = jest.fn(() => jest.fn());
+export const onAllowAddEdge = jest.fn(() => jest.fn());
+export const onAllowAddNode = jest.fn(() => jest.fn());
+export const onAddNode = jest.fn(() => jest.fn());
+export const onAddEdge = jest.fn(() => jest.fn());
+export const onSetDirected = jest.fn(() => jest.fn());
