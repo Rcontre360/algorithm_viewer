@@ -26,6 +26,12 @@ interface EdgeConfig{
 	points:[number,number,number,number],
 	srcNode?:NodeConfig,
 	destNode?:NodeConfig,
+	stroke?:string,
+}
+
+interface NodesEdges{
+	nodes: NodeConfig[];
+	edges: EdgeConfig[];
 }
 
 const Canvas = (props:React.HTMLAttributes<any>) => {
@@ -34,10 +40,10 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		algorithm:{name,dataStructure},
 		output,
 		running,
+		speed,
 	} = useSelector(({graph,common})=>({...graph,...common}))
 
-	const [nodes, setNodes] = useState<NodeConfig[]>([])
-	const [edges, setEdges] = useState<EdgeConfig[]>([])
+	const [{ nodes, edges }, setNodesEdges] = useState<NodesEdges>({ nodes: [], edges: [] });
 	const dispatch = useDispatch()
 	const nodeSize = 20;
 
@@ -47,9 +53,10 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 			x:x,
 			y:y,
 			radius:nodeSize,
-			id:`node-${nodes.length}`
+			id:`node-${nodes.length}`,
+			fill:'green'
 		}
-		setNodes(produce((prev:any)=>{prev.push(newNode)}))
+		setNodesEdges(produce((prev: NodesEdges) => { prev.nodes.push(newNode) }))
 		onAddNode(newNode.id)(dispatch)
 	}
 
@@ -59,8 +66,8 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		const {x,y} = node
 
 		if (x!==points[0] && y!==points[1]){
-			setEdges(produce((prev: any) => {
-				const line = getLastEdge(prev)
+			setNodesEdges(produce((prev: NodesEdges) => {
+				const line = getLastEdge(prev.edges)
 				line.points[2] = x
 				line.points[3] = y
 				line.destNode = node
@@ -70,9 +77,9 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 	}
 
 	function updateCurrentLine(event:React.MouseEvent){
-		setEdges(produce((prev:any)=>{
+		setNodesEdges(produce((prev: NodesEdges) => {
 			const { x, y } = getRelativeCoordenades(event)
-			const points = getLastEdge(prev).points
+			const points = getLastEdge(prev.edges).points
 			points[2] = x
 			points[3] = y
 		}))
@@ -83,12 +90,49 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 	}
 
 	useEffect(()=>{
-		setNodes([])
+		setNodesEdges({nodes:[],edges:[]})
 	},[directed])
-
+ 
 	useEffect(()=>{
 		if (running){
-			console.log(output)
+			console.log('speed',speed)
+			output.forEach((val:any,i:number)=>{
+				setTimeout(()=>{
+
+					if (val.from === -1)
+						return setNodesEdges(produce((prev: NodesEdges) => {
+							prev.nodes[val.to] = produce(prev.nodes[val.to],(node:NodeConfig)=>{
+								node.fill = 'red'
+							})
+						}))
+					if (val.to === -1)
+						return setNodesEdges(produce((prev: NodesEdges) => {
+							prev.nodes[val.from] = produce(prev.nodes[val.from], (node: NodeConfig) => {
+								node.fill = 'grey'
+							})
+						}))
+
+					if (val.forward)
+						setNodesEdges(produce((prev: NodesEdges) => {
+							prev.nodes[val.from] = produce(prev.nodes[val.from], (node: NodeConfig) => {
+								node.fill = 'yellow'
+							})
+							prev.nodes[val.to] = produce(prev.nodes[val.to], (node: NodeConfig) => {
+								node.fill = 'red'
+							})
+						}))
+					else
+						setNodesEdges(produce((prev: NodesEdges) => {
+							prev.nodes[val.from] = produce(prev.nodes[val.from], (node: NodeConfig) => {
+								node.fill = 'grey'
+							})
+							prev.nodes[val.to] = produce(prev.nodes[val.to], (node: NodeConfig) => {
+								node.fill = 'red'
+							})
+						}))
+
+				},i*500);
+			})
 		}
 	},[running])
 
@@ -126,7 +170,7 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 					handleAddEdge(attrs)
 				}
 				else
-					setEdges(produce(prev=>{prev.pop()}))
+					setNodesEdges(produce((prev: NodesEdges) => { prev.edges.pop() }))
 			}}
 		>
 			<Layer>
@@ -135,8 +179,8 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 						<Circle
 							key={i}
 							onMouseDown={() => {
-								setEdges(produce((prev: any) => {
-									prev.push({
+								setNodesEdges(produce((prev: NodesEdges) => {
+									prev.edges.push({
 										stroke: 'black',
 										srcNode: node,
 										points: [
@@ -148,7 +192,6 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 									})
 								}))
 							}}
-							fill={'green'}
 							{...node}
 						/>
 					))

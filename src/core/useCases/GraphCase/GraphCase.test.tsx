@@ -91,12 +91,12 @@ describe('GraphCase should apply nodes and edges methods', () => {
 describe('GraphCase should apply algorithm methods',()=>{
 
 	test('Algorithm called',()=>{
-		graphCase.startAlgorithm()
+		graphCase.startAlgorithm(algorithm)
 		expect(algorithm).toHaveBeenCalledTimes(1)
 	})
 
 	test('Edges should be called with algorithm',()=>{
-		graphCase.startAlgorithm()
+		graphCase.startAlgorithm(algorithm)
 		expect(FIELDS.getEdges).toHaveReturnedTimes(1)
 	})
 
