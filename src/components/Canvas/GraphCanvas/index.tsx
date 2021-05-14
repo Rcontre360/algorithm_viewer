@@ -1,6 +1,6 @@
 import React, {useState,useEffect,MouseEvent} from 'react';
 import {fabric} from 'fabric'
-import produce from 'immer'
+import produce, { setAutoFreeze } from 'immer'
 import { Stage, Layer, Circle, Text, Line, Arrow } from 'react-konva';
 
 import { getRelativeCoordenades } from '../../../utils'
@@ -13,6 +13,8 @@ import {
 import {useSelector,useDispatch} from '../../../redux/hooks'
 import {AlgorithmCaseReturn} from '../../../core/index'
 
+setAutoFreeze(false)
+
 interface NodeConfig{
 	id: string;
 	x:number;
@@ -24,9 +26,9 @@ interface NodeConfig{
 
 interface EdgeConfig{
 	points:[number,number,number,number],
-	srcNode?:NodeConfig,
-	destNode?:NodeConfig,
-	stroke?:string,
+	srcNode:number,
+	destNode?:number,
+	stroke:string,
 }
 
 interface NodesEdges{
@@ -47,6 +49,20 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 	const dispatch = useDispatch()
 	const nodeSize = 20;
 
+	function changeNodesEdges(handleData:(draft:NodesEdges)=>void){
+		setNodesEdges(produce(nodesEdges=>{
+			handleData(nodesEdges)
+		}))
+	}
+
+	function changeNodes(handleData:(draft:NodeConfig[])=>void){
+		changeNodesEdges(({nodes})=>handleData(nodes))
+	}
+
+	function changeEdges(handleData:(draft:EdgeConfig[])=>void){
+		changeNodesEdges(({edges})=>handleData(edges))
+	}
+
 	function handleAddNode(event: MouseEvent) {
 		const {x,y} = getRelativeCoordenades(event) 
 		const newNode = {
@@ -56,37 +72,49 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 			id:`node-${nodes.length}`,
 			fill:'green'
 		}
-		setNodesEdges(produce((prev: NodesEdges) => { prev.nodes.push(newNode) }))
-		onAddNode(newNode.id)(dispatch)
+		changeNodes(nodes => { nodes.push(newNode) })
+		onAddNode(nodes.length)(dispatch)
 	}
 
 	function handleAddEdge(node:NodeConfig){
 		const last = getLastEdge(edges)
+		const nodeId = parseInt(node.id.split('-')[1]);
 		const points = last.points
 		const {x,y} = node
 
 		if (x!==points[0] && y!==points[1]){
-			setNodesEdges(produce((prev: NodesEdges) => {
-				const line = getLastEdge(prev.edges)
+			changeEdges(edges=>{
+				const line = getLastEdge(edges)
 				line.points[2] = x
 				line.points[3] = y
-				line.destNode = node
-			}))
-			onAddEdge({src:last.srcNode!.id,dest:node.id})(dispatch)
+				line.destNode = nodeId
+			})
+			onAddEdge({src:last.srcNode,dest:nodeId})(dispatch)
 		}
 	}
 
 	function updateCurrentLine(event:React.MouseEvent){
-		setNodesEdges(produce((prev: NodesEdges) => {
+		changeEdges(edges=>{
 			const { x, y } = getRelativeCoordenades(event)
-			const points = getLastEdge(prev.edges).points
+			const points = getLastEdge(edges).points
 			points[2] = x
 			points[3] = y
-		}))
+		})
 	}
 
 	function getLastEdge(edges: EdgeConfig[]) {
 		return edges[edges.length-1] || {destNode:true}
+	}
+
+	function findEdge(src:number,dest:number){
+		const find = (src:number, dest:number) => 
+			(edge:EdgeConfig) => edge.srcNode === src && edge.destNode === dest;
+
+		if (directed)
+			return edges[edges.findIndex(find(src,dest))];
+		else 
+			return edges[edges.findIndex(edge=>find(src,dest)(edge) || find(dest,src)(edge)
+			)]
 	}
 
 	useEffect(()=>{
@@ -95,41 +123,34 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
  
 	useEffect(()=>{
 		if (running){
-			console.log('speed',speed)
+			console.log(output)
 			output.forEach((val:any,i:number)=>{
 				setTimeout(()=>{
 
-					if (val.from === -1)
-						return setNodesEdges(produce((prev: NodesEdges) => {
-							prev.nodes[val.to] = produce(prev.nodes[val.to],(node:NodeConfig)=>{
-								node.fill = 'red'
-							})
-						}))
-					if (val.to === -1)
-						return setNodesEdges(produce((prev: NodesEdges) => {
-							prev.nodes[val.from] = produce(prev.nodes[val.from], (node: NodeConfig) => {
-								node.fill = 'grey'
-							})
-						}))
+					changeNodesEdges(({nodes,edges})=>{
 
-					if (val.forward)
-						setNodesEdges(produce((prev: NodesEdges) => {
-							prev.nodes[val.from] = produce(prev.nodes[val.from], (node: NodeConfig) => {
-								node.fill = 'yellow'
-							})
-							prev.nodes[val.to] = produce(prev.nodes[val.to], (node: NodeConfig) => {
-								node.fill = 'red'
-							})
-						}))
-					else
-						setNodesEdges(produce((prev: NodesEdges) => {
-							prev.nodes[val.from] = produce(prev.nodes[val.from], (node: NodeConfig) => {
-								node.fill = 'grey'
-							})
-							prev.nodes[val.to] = produce(prev.nodes[val.to], (node: NodeConfig) => {
-								node.fill = 'red'
-							})
-						}))
+						if (val.from === -1){
+							return nodes[val.to].fill = 'red'
+						}
+
+						if (val.to===-1){
+							return nodes[val.from].fill = 'grey'
+						}
+
+						const edge = findEdge(val.from, val.to);
+						if (val.forward){
+							if (edge)
+								edge.stroke = 'orange'
+							nodes[val.from].fill = 'yellow'
+							nodes[val.to].fill = 'red'
+						} else {
+							if (edge)
+								edge.stroke = 'grey'
+							nodes[val.from].fill = 'grey'
+							nodes[val.to].fill = 'red'
+						}
+
+					})
 
 				},i*500);
 			})
@@ -166,11 +187,10 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 				const {attrs} = target
 				const {id} = attrs
 
-				if (id && id.includes('node')){
+				if (id && id.includes('node'))
 					handleAddEdge(attrs)
-				}
-				else
-					setNodesEdges(produce((prev: NodesEdges) => { prev.edges.pop() }))
+				else 
+					changeEdges(edges=>{edges.pop()})
 			}}
 		>
 			<Layer>
@@ -179,10 +199,10 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 						<Circle
 							key={i}
 							onMouseDown={() => {
-								setNodesEdges(produce((prev: NodesEdges) => {
-									prev.edges.push({
+								changeEdges(edges=>{
+									edges.push({
 										stroke: 'black',
-										srcNode: node,
+										srcNode: i,
 										points: [
 											node.x,
 											node.y,
@@ -190,7 +210,7 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 											node.y
 										]
 									})
-								}))
+								})
 							}}
 							{...node}
 						/>
