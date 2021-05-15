@@ -28,7 +28,7 @@ interface IInitialState {
 
 export const initialState: IInitialState = {
 	common: {
-		speed: 1,
+		speed: 500,
 		running: false,
 		algorithm: {
 			name: 'dfs',

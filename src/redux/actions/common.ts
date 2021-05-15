@@ -39,3 +39,12 @@ export const onSetDataStructure = (name: 'graph') => {
 		})
 	}
 }
+
+export const onSetSpeed = (value: number) => {
+	return (dispatch: AppDispatch) => {
+		return dispatch({
+			type: actions.SET_SPEED,
+			payload: value
+		})
+	}
+}

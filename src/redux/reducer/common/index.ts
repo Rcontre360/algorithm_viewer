@@ -5,7 +5,7 @@ import { IReduxAction } from '../../interfaces'
 import { GraphCase } from '../../../core'
 
 export const commonState = {
-	speed: 1,
+	speed: 500,
 	running: false,
 	algorithm: {
 		name: 'dfs',
@@ -31,8 +31,9 @@ const commonReducer: RootState = (state = commonState, action: IReduxAction) => 
 				state.running = false
 			})
 		case actions.SET_SPEED:
-
-			return state;
+			return produce(state, state => {
+				state.speed = action.payload
+			});
 		default:
 			return state;
 	}

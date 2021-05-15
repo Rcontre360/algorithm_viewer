@@ -55,7 +55,7 @@ describe('Canvas should add edges and Nodes',()=>{
 		render(component)
 		fireEvent.click(screen.getByTestId(canvasId))
 		expect(actions.onAddNode).toHaveBeenCalledTimes(1)
-		expect(actions.onAddNode).toHaveBeenCalledWith('node-0')
+		expect(actions.onAddNode).toHaveBeenCalledWith(0)
 	})
 
 	test('Not add nodes when not allowed',()=>{

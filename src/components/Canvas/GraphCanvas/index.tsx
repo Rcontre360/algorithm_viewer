@@ -11,6 +11,7 @@ import {
 	onSetDataStructure
 } from '../../../redux/actions'
 import {useSelector,useDispatch} from '../../../redux/hooks'
+import {onStopAlgorithm} from '../../../redux/actions'
 import {AlgorithmCaseReturn} from '../../../core/index'
 
 setAutoFreeze(false)
@@ -123,22 +124,21 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
  
 	useEffect(()=>{
 		if (running){
-			console.log(output)
-			output.forEach((val:any,i:number)=>{
-				setTimeout(()=>{
+			output.forEach((val: any, i: number) => {
+				setTimeout(() => {
 
-					changeNodesEdges(({nodes,edges})=>{
+					changeNodesEdges(({ nodes, edges }) => {
 
-						if (val.from === -1){
+						if (val.from === -1) {
 							return nodes[val.to].fill = 'red'
 						}
 
-						if (val.to===-1){
+						if (val.to === -1) {
 							return nodes[val.from].fill = 'grey'
 						}
 
 						const edge = findEdge(val.from, val.to);
-						if (val.forward){
+						if (val.forward) {
 							if (edge)
 								edge.stroke = 'orange'
 							nodes[val.from].fill = 'yellow'
@@ -152,8 +152,9 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 
 					})
 
-				},i*500);
-			})
+				}, i * speed);
+			});
+			setTimeout(onStopAlgorithm,output.length*(speed+100))
 		}
 	},[running])
 
@@ -195,6 +196,20 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		>
 			<Layer>
 				{
+					edges.map((edge: EdgeConfig, i: number) => (
+						directed ?
+							<Arrow
+								key={i}
+								{...edge}
+							/>
+							:
+							<Line
+								key={i}
+								{...edge}
+							/>
+					))
+				}
+				{
 					nodes.map((node: NodeConfig, i: number) => (
 						<Circle
 							key={i}
@@ -214,20 +229,6 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 							}}
 							{...node}
 						/>
-					))
-				}
-				{
-					edges.map((edge: EdgeConfig, i: number) => (
-						directed ?
-							<Arrow
-								key={i}
-								{...edge}
-							/>
-							:
-							<Line
-								key={i}
-								{...edge}
-							/>
 					))
 				}
 			</Layer>
