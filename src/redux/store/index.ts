@@ -6,7 +6,7 @@ interface CommonState {
 	speed: number;
 	running: boolean;
 	algorithm: {
-		name: 'dfs';
+		name: 'bfs' | 'dfs';
 		dataStructure: 'graph';
 	}
 }
@@ -31,7 +31,7 @@ export const initialState: IInitialState = {
 		speed: 500,
 		running: false,
 		algorithm: {
-			name: 'dfs',
+			name: 'bfs',
 			dataStructure: 'graph',
 		}
 	},

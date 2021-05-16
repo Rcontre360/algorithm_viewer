@@ -24,8 +24,6 @@ interface IGraphEdge {
 	nodeDest: number;
 }
 
-interface GraphReturn {
-	forward: boolean;
-	from: number | -1;
-	to: number | -1;
+interface GraphReturn extends unknown {
+
 }

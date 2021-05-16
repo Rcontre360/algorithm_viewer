@@ -1,12 +1,14 @@
 import GraphCase from '../GraphCase'
 import DFS from '../../algorithms/DFS'
+import BFS from '../../algorithms/BFS'
 
 const DSMapper = {
 	'graph': GraphCase
 }
 
 const AlgorithmMapper = {
-	'dfs': DFS
+	'dfs': DFS,
+	'bfs': BFS,
 }
 
 export class Manager {
@@ -18,9 +20,8 @@ export class Manager {
 			Manager.dataStructure = new DSMapper[DS]();
 	}
 
-	static setAlgorithm = (algorithm: 'dfs') => {
-		if (typeof algorithm === 'string')
-			Manager.algorithm = AlgorithmMapper[algorithm]
+	static setAlgorithm = (algorithm: 'dfs' | 'bfs') => {
+		Manager.algorithm = AlgorithmMapper[algorithm]
 	}
 
 	static startAlgorithm = () => {

@@ -83,7 +83,9 @@ export class GraphCase < T extends GraphType > {
 		const algorithmData = algorithm!(this.graph, options) as GraphReturn[]
 		const edges = this.graph.getEdges()
 
-		return algorithmData.map(obj => this.parseReturnValue(obj, edges))
+		const returnVal = algorithmData.map(obj => this.parseReturnValue(obj, edges))
+		console.log('returnVal', returnVal)
+		return returnVal
 	}
 
 	getGraphData = () => {

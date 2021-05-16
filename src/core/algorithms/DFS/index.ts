@@ -19,7 +19,7 @@ export class DFS {
 		DFS.visited = new Array(graph.getNumberOfElements())
 		DFS.visited.fill(false)
 		DFS.DFS(graph, options)
-		console.log(DFS.returnValue)
+
 		return DFS.returnValue;
 	}
 

@@ -13,10 +13,11 @@ import {
 import {useSelector,useDispatch} from '../../../redux/hooks'
 import {onStopAlgorithm} from '../../../redux/actions'
 import {AlgorithmCaseReturn} from '../../../core/index'
+import painters from '../../painters'
 
 setAutoFreeze(false)
 
-interface NodeConfig{
+export interface NodeConfig{
 	id: string;
 	x:number;
 	y: number;
@@ -25,14 +26,14 @@ interface NodeConfig{
 	shadowBlur?: number;
 }
 
-interface EdgeConfig{
+export interface EdgeConfig{
 	points:[number,number,number,number],
 	srcNode:number,
 	destNode?:number,
 	stroke:string,
 }
 
-interface NodesEdges{
+export interface NodesEdges{
 	nodes: NodeConfig[];
 	edges: EdgeConfig[];
 }
@@ -107,17 +108,6 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		return edges[edges.length-1] || {destNode:true}
 	}
 
-	function findEdge(src:number,dest:number){
-		const find = (src:number, dest:number) => 
-			(edge:EdgeConfig) => edge.srcNode === src && edge.destNode === dest;
-
-		if (directed)
-			return edges[edges.findIndex(find(src,dest))];
-		else 
-			return edges[edges.findIndex(edge=>find(src,dest)(edge) || find(dest,src)(edge)
-			)]
-	}
-
 	useEffect(()=>{
 		setNodesEdges({nodes:[],edges:[]})
 	},[directed])
@@ -127,38 +117,16 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 			output.forEach((val: any, i: number) => {
 				setTimeout(() => {
 
-					changeNodesEdges(({ nodes, edges }) => {
-
-						if (val.from === -1) {
-							return nodes[val.to].fill = 'red'
-						}
-
-						if (val.to === -1) {
-							return nodes[val.from].fill = 'grey'
-						}
-
-						const edge = findEdge(val.from, val.to);
-						if (val.forward) {
-							if (edge)
-								edge.stroke = 'orange'
-							nodes[val.from].fill = 'yellow'
-							nodes[val.to].fill = 'red'
-						} else {
-							if (edge)
-								edge.stroke = 'grey'
-							nodes[val.from].fill = 'grey'
-							nodes[val.to].fill = 'red'
-						}
-
-					})
+					changeNodesEdges(painters[name](val,i))
 
 				}, i * speed);
 			});
-			setTimeout(onStopAlgorithm,output.length*(speed+100))
+			setTimeout(onStopAlgorithm(),output.length*(speed+100),dispatch)
 		}
 	},[running])
 
 	useEffect(()=>{
+		console.log('onSetAlgorithm',name)
 		onSetAlgorithm(name)(dispatch)
 	},[name]);
 
