@@ -7,20 +7,20 @@ const DSMapper = {
 }
 
 const AlgorithmMapper = {
-	'dfs': DFS,
-	'bfs': BFS,
+	'dfs': new DFS(),
+	'bfs': new BFS(),
 }
 
 export class Manager {
 	static dataStructure: any
-	static algorithm: any
+	static algorithm: AlgorithmHandler
 
 	static setDataStructure = (DS: 'graph') => {
 		if (typeof DS === 'string')
 			Manager.dataStructure = new DSMapper[DS]();
 	}
 
-	static setAlgorithm = (algorithm: 'dfs' | 'bfs') => {
+	static setAlgorithm = (algorithm: AlgorithmSignature) => {
 		Manager.algorithm = AlgorithmMapper[algorithm]
 	}
 

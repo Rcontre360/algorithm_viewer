@@ -1,5 +1,15 @@
 import { NodesEdges } from '../../Canvas/GraphCanvas'
 
+interface PainterArguments {
+	output: unknown[];
+	changeNodesEdges: () => void;
+	speed: number;
+}
+
+const NEWPainter = ({ output, changeNodesEdges, speed }: PainterArguments) => {
+
+}
+
 const DFSPainter = (val: any, index: number) =>
 
 	({ nodes, edges }: NodesEdges) => {

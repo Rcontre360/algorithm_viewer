@@ -6,7 +6,7 @@ interface CommonState {
 	speed: number;
 	running: boolean;
 	algorithm: {
-		name: 'bfs' | 'dfs';
+		name: AlgorithmSignature;
 		dataStructure: 'graph';
 	}
 }

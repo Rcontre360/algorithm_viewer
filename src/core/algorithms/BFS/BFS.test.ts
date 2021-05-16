@@ -3,23 +3,24 @@ import BFS from './index'
 
 describe('BFS should return right values', () => {
 	let graph: Graph < string > ;
+	let bfs: BFS;
 	const rightIndirectedConnection = [[1, 3], [0, 3], [], [0, 1]]
 	const nodeData = ['node', 'node2', 'node3', 'node4']
 	const rightIndirectedReturn = [
-		{ active: true, node: 0 },
-		{ active: false, node: 1 },
-		{ active: false, node: 3 },
-		{ active: true, node: 3 },
-		{ active: true, node: 1 }
+		{ active: true, from: -1, to: 0 },
+		{ active: false, from: 0, to: 1 },
+		{ active: false, from: 0, to: 3 },
+		{ active: true, from: -1, to: 3 },
+		{ active: true, from: -1, to: 1 }
 	]
 
 	beforeEach(() => {
 		graph = new Graph(rightIndirectedConnection, nodeData)
+		bfs = new BFS();
 	})
 
 	test('Return value', () => {
-		console.log(BFS.start(graph, { startIndex: 0, previousIndex: -1 }))
-		expect(BFS.start(graph, {
+		expect(bfs.start(graph, {
 			startIndex: 0,
 		})).toEqual(rightIndirectedReturn)
 	})

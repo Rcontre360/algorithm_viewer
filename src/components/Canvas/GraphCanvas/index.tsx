@@ -121,7 +121,6 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 
 				}, i * speed);
 			});
-			setTimeout(onStopAlgorithm(),output.length*(speed+100),dispatch)
 		}
 	},[running])
 

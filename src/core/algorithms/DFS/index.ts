@@ -1,31 +1,31 @@
 interface DFSOptions {
-	startIndex: number;
-	previousIndex: number;
+	startIndex ? : number;
+	previousIndex ? : number;
 }
 
-export class DFS {
-	static visited: boolean[] = [];
-	static returnValue: GraphReturn[] = [];
+export class DFS implements AlgorithmHandler {
+	visited: boolean[] = [];
+	returnValue: GraphReturn[] = [];
 
-	static start = (
+	start = (
 		graph: GraphInterface < unknown > ,
-		options: DFSOptions = {
-			startIndex: 0,
-			previousIndex: -1
-		}
+		options ? : DFSOptions
 	) => {
 
-		DFS.returnValue = []
-		DFS.visited = new Array(graph.getNumberOfElements())
-		DFS.visited.fill(false)
-		DFS.DFS(graph, options)
+		const startIndex = (options && options.startIndex) || 0;
+		const previousIndex = (options && options.previousIndex) || -1;
 
-		return DFS.returnValue;
+		this.returnValue = []
+		this.visited = new Array(graph.getNumberOfElements())
+		this.visited.fill(false)
+		this.DFS(graph, { startIndex, previousIndex })
+
+		return this.returnValue;
 	}
 
-	static DFS = (
+	DFS = (
 		graph: GraphInterface < unknown > ,
-		options: DFSOptions
+		options: { startIndex: number, previousIndex: number }
 	) => {
 		const {
 			startIndex,
@@ -35,8 +35,8 @@ export class DFS {
 		if (graph.getNumberOfElements() <= startIndex)
 			return
 
-		DFS.visited[startIndex] = true
-		DFS.returnValue.push({
+		this.visited[startIndex] = true
+		this.returnValue.push({
 			forward: true,
 			from: previousIndex,
 			to: startIndex
@@ -45,14 +45,14 @@ export class DFS {
 		const nodes: number[] = graph.getNodeConnections(startIndex)
 
 		for (let i = 0; i < nodes.length; i++)
-			if (!DFS.visited[nodes[i]])
-				DFS.DFS(graph, {
+			if (!this.visited[nodes[i]])
+				this.DFS(graph, {
 					...options,
 					startIndex: nodes[i],
 					previousIndex: startIndex
 				})
 
-		DFS.returnValue.push({
+		this.returnValue.push({
 			forward: false,
 			from: startIndex,
 			to: previousIndex

@@ -1,61 +1,62 @@
 interface BFSOptions {
-	startIndex: number;
+	startIndex ? : number;
 }
 
-export class BFS {
-	static visited: boolean[] = [];
-	static returnValue: GraphReturn[] = [];
-	static queue: number[] = [];
+export class BFS implements AlgorithmHandler {
+	visited: boolean[] = [];
+	returnValue: GraphReturn[] = [];
+	queue: number[] = [];
 
-	static start = (
+	constructor() {}
+
+	start = (
 		graph: GraphInterface < unknown > ,
-		options: BFSOptions = {
-			startIndex: 0,
-		}
+		options ? : BFSOptions
 	) => {
 
-		BFS.returnValue = []
-		BFS.visited = new Array(graph.getNumberOfElements())
-		BFS.visited.fill(false)
-		BFS.BFS(graph, options)
-		console.log(BFS.returnValue)
-		return BFS.returnValue;
+		const startIndex = (options && options.startIndex) || 0
+
+		this.returnValue = []
+		this.visited = new Array(graph.getNumberOfElements())
+		this.visited.fill(false)
+		this.BFS(graph, { startIndex })
+		return this.returnValue;
 	}
 
-	static BFS = (
+	BFS = (
 		graph: GraphInterface < unknown > ,
-		options: BFSOptions
+		options: { startIndex: number }
 	) => {
 		const {
 			startIndex,
 		} = options
 		let prevIndex = -1;
 
-		BFS.queue.push(startIndex);
+		this.queue.push(startIndex);
 
-		while (BFS.queue.length > 0) {
-			const currentNode = BFS.queue.pop() as number;
+		while (this.queue.length > 0) {
+			const currentNode = this.queue.pop() as number;
 
-			BFS.visited[currentNode] = true
-			BFS.returnValue.push({
+			this.visited[currentNode] = true
+			this.returnValue.push({
 				active: true,
 				from: -1,
 				to: currentNode,
 			})
 			prevIndex = currentNode
 
-			BFS.visited[currentNode] = true
+			this.visited[currentNode] = true
 			const nodes = graph.getNodeConnections(currentNode);
 
 			for (let i of nodes) {
-				if (BFS.visited[i]) continue
-				BFS.visited[i] = true
-				BFS.returnValue.push({
+				if (this.visited[i]) continue
+				this.visited[i] = true
+				this.returnValue.push({
 					active: false,
 					from: currentNode,
 					to: i,
 				})
-				BFS.queue.push(i);
+				this.queue.push(i);
 			}
 		}
 	}

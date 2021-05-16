@@ -14,10 +14,9 @@ export class GraphCase < T extends GraphType > {
 	private _canAddNode: boolean = false;
 	private _canAddEdge: boolean = false;
 	graph: GraphInterface < T > = undefined as any
-	algorithm: GraphAlgorithm < unknown,
-	unknown > | undefined;
+	algorithm: StartAlgorithm | undefined;
 
-	constructor(algorithm ? : GraphAlgorithm < unknown, GraphReturn[] > , onActions ? : {
+	constructor(algorithm ? : StartAlgorithm, onActions ? : {
 		onAddNode ? : Function,
 		onAddEdge ? : Function
 	}) {
@@ -75,11 +74,11 @@ export class GraphCase < T extends GraphType > {
 		this.graph.setDirected(isDirected)
 	}
 
-	setAlgorithm = (algorithm: GraphAlgorithm < unknown, GraphReturn[] > ) => {
+	setAlgorithm = (algorithm: StartAlgorithm) => {
 		this.algorithm = algorithm
 	}
 
-	startAlgorithm = (algorithm: GraphAlgorithm < unknown, GraphReturn[] > , options ? : object) => {
+	startAlgorithm = (algorithm: StartAlgorithm, options ? : object) => {
 		const algorithmData = algorithm!(this.graph, options) as GraphReturn[]
 		const edges = this.graph.getEdges()
 
