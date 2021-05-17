@@ -17,8 +17,9 @@ const commonReducer: RootState = (state = commonState, action: IReduxAction) => 
 
 	switch (action.type) {
 		case actions.SET_ALGORITHM:
-
-			return state;
+			return produce(state, state => {
+				state.algorithm.name = action.payload;
+			});
 		case actions.SET_DATA_STRUCTURE:
 
 			return state;

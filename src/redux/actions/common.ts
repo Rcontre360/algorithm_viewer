@@ -20,7 +20,7 @@ export const onStopAlgorithm = () => {
 	}
 }
 
-export const onSetAlgorithm = (name: 'dfs' | 'bfs') => {
+export const onSetAlgorithm = (name: AlgorithmSignature) => {
 	Manager.setAlgorithm(name)
 	return (dispatch: AppDispatch) => {
 		return dispatch({

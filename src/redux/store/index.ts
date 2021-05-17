@@ -31,7 +31,7 @@ export const initialState: IInitialState = {
 		speed: 500,
 		running: false,
 		algorithm: {
-			name: 'bfs',
+			name: 'dfs',
 			dataStructure: 'graph',
 		}
 	},
