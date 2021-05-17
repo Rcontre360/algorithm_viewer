@@ -1,8 +1,9 @@
 import {Graph} from '../../../core/data_structures/Graph'
-import { DFS } from './index'
+import DFS from './index'
 
 describe('DFS should return right values', () => {
 	let graph: Graph < string > ;
+	let dfs: DFS;
 	const rightIndirectedConnection = [[1, 3], [0, 3], [], [0, 1]]
 	const nodeData = ['node', 'node2', 'node3', 'node4']
 	const rightIndirectedReturn = [
@@ -15,11 +16,12 @@ describe('DFS should return right values', () => {
 	]
 
 	beforeEach(() => {
-		graph = new Graph(rightIndirectedConnection, nodeData)
+		graph = new Graph(rightIndirectedConnection, nodeData);
+		dfs = new DFS();
 	})
 
 	test('Return value', () => {
-		expect(DFS(graph, {
+		expect(dfs.start(graph, {
 			startIndex: 0,
 			previousIndex: -1
 		})).toEqual(rightIndirectedReturn)

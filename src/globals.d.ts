@@ -1,7 +1,11 @@
-type GraphType = unknown
+type AlgorithmSignature = 'bfs' | 'dfs';
+type GraphType = unknown;
+type StartAlgorithm = (graph: GraphInterface < unknown > , options ? : AlgorithmOptions) => object[];
 
-interface GraphAlgorithm < Args, Ret > {
-	(graph: GraphInterface, args: any): Ret;
+interface AlgorithmOptions {}
+
+interface AlgorithmHandler {
+	start: StartAlgorithm
 }
 
 interface GraphInterface < T extends GraphType > {
@@ -25,7 +29,6 @@ interface IGraphEdge {
 }
 
 interface GraphReturn {
-	forward: boolean;
-	from: number | -1;
-	to: number | -1;
+	from: number;
+	to: number;
 }

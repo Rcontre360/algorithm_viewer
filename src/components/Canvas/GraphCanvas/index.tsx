@@ -1,146 +1,206 @@
-import React, {useState,useEffect} from 'react';
+import React, {useState,useEffect,MouseEvent} from 'react';
 import {fabric} from 'fabric'
-import produce from 'immer'
+import produce, { setAutoFreeze } from 'immer'
+import { Stage, Layer, Circle, Text, Line, Arrow } from 'react-konva';
 
-import {onAddNode} from '../../../redux/actions'
+import { getRelativeCoordenades } from '../../../utils'
+import {
+	onAddNode,
+	onAddEdge,
+	onSetAlgorithm,
+	onSetDataStructure
+} from '../../../redux/actions'
 import {useSelector,useDispatch} from '../../../redux/hooks'
-import BaseCanvas from '../../../adapters/Canvas'
-import LineDrawer from '../../../adapters/shapes/Line'
-import {nodeStyles,edgeStyles} from '../../../components/shape_styles'
+import {onStopAlgorithm} from '../../../redux/actions'
 import {AlgorithmCaseReturn} from '../../../core/index'
+import painters from '../../painters'
 
-const Canvas = (props:{}) => {
+setAutoFreeze(false)
+
+export interface NodeConfig{
+	id: string;
+	x:number;
+	y: number;
+	radius:number;
+	fill?: string;
+	shadowBlur?: number;
+}
+
+export interface EdgeConfig{
+	points:[number,number,number,number],
+	srcNode:number,
+	destNode?:number,
+	stroke:string,
+}
+
+export interface NodesEdges{
+	nodes: NodeConfig[];
+	edges: EdgeConfig[];
+}
+
+const Canvas = (props:React.HTMLAttributes<any>) => {
 	const { 
 		options: { directed, addNode, addEdge },
+		algorithm:{name,dataStructure},
 		output,
-		running
-	} = useSelector(({algorithm,common})=>({...algorithm,...common}))
+		running,
+		speed,
+	} = useSelector(({graph,common})=>({...graph,...common}))
+
+	const [{ nodes, edges }, setNodesEdges] = useState<NodesEdges>({ nodes: [], edges: [] });
 	const dispatch = useDispatch()
-	
-	const [canvas,setCanvas] = useState<BaseCanvas>()
+	const nodeSize = 20;
 
-	function colorNodes(action: AlgorithmCaseReturn<fabric.Circle>){
-		if (action.forward)
-			colorNodesForward(action)
-		else
-			colorNodesBackward(action)
-		canvas!.renderAll()
+	function changeNodesEdges(handleData:(draft:NodesEdges)=>void){
+		setNodesEdges(produce(nodesEdges=>{
+			handleData(nodesEdges)
+		}))
 	}
 
-	function colorNodesForward(action: AlgorithmCaseReturn<fabric.Circle>){
-		const lines = canvas!.drawer!.lines;
-		(action.toData as fabric.Circle).set(nodeStyles.active)
-		if (action.from !== -1)
-			lines[action.edgeIndex].set(edgeStyles.active)
+	function changeNodes(handleData:(draft:NodeConfig[])=>void){
+		changeNodesEdges(({nodes})=>handleData(nodes))
 	}
 
-	function colorNodesBackward(action: AlgorithmCaseReturn<fabric.Circle>){
-		const style = nodeStyles.visited
-		const lines = canvas!.drawer!.lines
-		if (action.from !== -1) {
-			(action.fromData as fabric.Circle).set(style)
-		} else {
-			(action.toData as fabric.Circle).set(style)
+	function changeEdges(handleData:(draft:EdgeConfig[])=>void){
+		changeNodesEdges(({edges})=>handleData(edges))
+	}
+
+	function handleAddNode(event: MouseEvent) {
+		const {x,y} = getRelativeCoordenades(event) 
+		const newNode = {
+			x:x,
+			y:y,
+			radius:nodeSize,
+			id:`node-${nodes.length}`,
+			fill:'green'
 		}
-		if (action.to !== -1)
-			lines[action.edgeIndex].set(edgeStyles.visited)
+		changeNodes(nodes => { nodes.push(newNode) })
+		onAddNode(nodes.length)(dispatch)
 	}
 
-	function addNodeHandler(event: fabric.IEvent){
-		const pointer = event.pointer as fabric.Point
-		const circle = new fabric.Circle(nodeStyles.unactive);
-		circle.set({
-			top: pointer.y,
-			left: pointer.x
-		});
-		canvas!.add(circle)
-		onAddNode(circle)(dispatch)
-	}
+	function handleAddEdge(node:NodeConfig){
+		const last = getLastEdge(edges)
+		const nodeId = parseInt(node.id.split('-')[1]);
+		const points = last.points
+		const {x,y} = node
 
-	function onEdgeMouseDown(event: fabric.IEvent,onMouseDown:(event:fabric.IEvent)=>void) {
-		if (!canvas!.isMouseIntoObject(event, 'Circle'))
-			return
-		onMouseDown(event)
-	}
-
-	function onEdgeMouseUp(event:fabric.IEvent,onMouseUp:(event:fabric.IEvent)=>void){
-		if (!canvas!.isMouseIntoObject(event, 'Circle')) {
-			canvas!.remove(canvas!.drawer!.getLine())
-			canvas!.drawer!.getLine().set({
-				stroke: "transparent",
+		if (x!==points[0] && y!==points[1]){
+			changeEdges(edges=>{
+				const line = getLastEdge(edges)
+				line.points[2] = x
+				line.points[3] = y
+				line.destNode = nodeId
 			})
-			canvas!.renderAll()
-			return
+			onAddEdge({src:last.srcNode,dest:nodeId})(dispatch)
 		}
+	}
 
-		const nodeOrigin: fabric.Circle = event.target as fabric.Circle
-		const nodeDestiny: fabric.Circle = canvas!.isMouseIntoObject(event, 'Circle') as fabric.Circle
-		let x = nodeDestiny.left as number
-		let y = nodeDestiny.top as number
-		const radius = nodeDestiny.radius as number
+	function updateCurrentLine(event:React.MouseEvent){
+		changeEdges(edges=>{
+			const { x, y } = getRelativeCoordenades(event)
+			const points = getLastEdge(edges).points
+			points[2] = x
+			points[3] = y
+		})
+	}
 
-		if (directed) {
-			const arrowCoords = canvas!.getCircleLineIntersection(canvas!.drawer!.getLine(), nodeDestiny)
-			x = arrowCoords.x
-			y = arrowCoords.y
-		}
-
-		canvas!.drawer!.getLine().set({
-			x2: (x as number),
-			y2: (y as number),
-			lockMovementX: true,
-			lockMovementY: true,
-		}).setCoords();
-		onMouseUp(event)
+	function getLastEdge(edges: EdgeConfig[]) {
+		return edges[edges.length-1] || {destNode:true}
 	}
 
 	useEffect(()=>{
-		const canvas = new BaseCanvas('main_canvas', 'canvas_container')
-		canvas!.drawer!.on('mouse:down',onEdgeMouseDown)
-
-		setCanvas(canvas)
-	},[])
-
-	useEffect(()=>{
-		if (!canvas) return
-
-		if (addNode){
-			canvas!.on("mouse:down", addNodeHandler)
-			canvas!.drawer!.removeDrawingEvents()
-		} else
-			canvas!.off('mouse:down',addNodeHandler)
-
-		return () => {
-			canvas!.off('mouse:down', addNodeHandler)
-		}
-	},[addNode,canvas])
-
-	useEffect(()=>{
-		if (addEdge && canvas){
-			canvas!.off("mouse:down", addNodeHandler)
-			canvas!.drawer!.setDrawingEvents()
-		}
-	},[addEdge,canvas])
-
-	useEffect(()=>{
-		if (!canvas) return
-		canvas!.clear();
-		canvas!.renderAll();
-		canvas!.drawer!.useArrow(directed)
-	},[directed,canvas])
-
+		setNodesEdges({nodes:[],edges:[]})
+	},[directed])
+ 
 	useEffect(()=>{
 		if (running){
-			//const lines = drawer.lines;
-			(output as [object]).forEach((action: object, i) => {
-				setTimeout(colorNodes, 800 * i, action)
-			})
+			output.forEach((val: any, i: number) => {
+				setTimeout(() => {
+
+					changeNodesEdges(painters[name](val,i))
+
+				}, i * speed);
+			});
 		}
 	},[running])
 
+	useEffect(()=>{
+		console.log('onSetAlgorithm',name)
+		onSetAlgorithm(name)(dispatch)
+	},[name]);
+
+	useEffect(() => {
+		onSetDataStructure(dataStructure)(dispatch)
+	}, [dataStructure]);
+
   return (
-  <div id='canvas_container'> 
-		<canvas id="main_canvas" role='main-app'></canvas>
+  <div 
+  	data-testid='canvas_container' 
+  	style={{width:'100%',height:'100%'}}
+  	onClick={addNode?handleAddNode:()=>1}
+  	role='main-app'
+		onMouseMove={event => {
+			if (getLastEdge(edges).destNode) return
+			updateCurrentLine(event)
+		}}
+  	{...props}
+  > 
+	{process.env.NODE_ENV !== 'test'
+		&&
+		<Stage 
+			width={window.innerWidth} 
+			height={window.innerHeight}
+			onMouseUp={({target})=>{
+				if (!addEdge) return; 
+				const {attrs} = target
+				const {id} = attrs
+
+				if (id && id.includes('node'))
+					handleAddEdge(attrs)
+				else 
+					changeEdges(edges=>{edges.pop()})
+			}}
+		>
+			<Layer>
+				{
+					edges.map((edge: EdgeConfig, i: number) => (
+						directed ?
+							<Arrow
+								key={i}
+								{...edge}
+							/>
+							:
+							<Line
+								key={i}
+								{...edge}
+							/>
+					))
+				}
+				{
+					nodes.map((node: NodeConfig, i: number) => (
+						<Circle
+							key={i}
+							onMouseDown={() => {
+								changeEdges(edges=>{
+									edges.push({
+										stroke: 'black',
+										srcNode: i,
+										points: [
+											node.x,
+											node.y,
+											node.x,
+											node.y
+										]
+									})
+								})
+							}}
+							{...node}
+						/>
+					))
+				}
+			</Layer>
+		</Stage>
+	}
 	</div>
   )
 }

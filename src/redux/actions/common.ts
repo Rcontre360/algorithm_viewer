@@ -1,26 +1,50 @@
-import {
-	START_ALGORITHM,
-	STOP_ALGORITHM,
-	SET_SPEED,
-	SET_ALGORITHM,
-	SET_DATA_STRUCTURE,
-} from '../action_types';
+import * as actions from '../action_types';
 import { AppDispatch } from '../store'
+import Manager from '../../core/useCases/Manager'
 
-export const startAlgorithm = () => {
+export const onStartAlgorithm = () => {
 	return (dispatch: AppDispatch) => {
 		return dispatch({
-			type: START_ALGORITHM,
-			payload: true
+			type: actions.START_ALGORITHM,
+			payload: Manager.startAlgorithm()
 		})
 	}
 }
 
-export const stopAlgorithm = () => {
+export const onStopAlgorithm = () => {
 	return (dispatch: AppDispatch) => {
 		return dispatch({
-			type: STOP_ALGORITHM,
+			type: actions.STOP_ALGORITHM,
 			payload: false
+		})
+	}
+}
+
+export const onSetAlgorithm = (name: 'dfs' | 'bfs') => {
+	Manager.setAlgorithm(name)
+	return (dispatch: AppDispatch) => {
+		return dispatch({
+			type: actions.SET_ALGORITHM,
+			payload: name
+		})
+	}
+}
+
+export const onSetDataStructure = (name: 'graph') => {
+	Manager.setDataStructure(name)
+	return (dispatch: AppDispatch) => {
+		return dispatch({
+			type: actions.SET_DATA_STRUCTURE,
+			payload: name
+		})
+	}
+}
+
+export const onSetSpeed = (value: number) => {
+	return (dispatch: AppDispatch) => {
+		return dispatch({
+			type: actions.SET_SPEED,
+			payload: value
 		})
 	}
 }

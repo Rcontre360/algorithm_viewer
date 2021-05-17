@@ -5,10 +5,11 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import {makeStyles} from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
+import Slider from '@material-ui/core/Slider'
 
 import { useDispatch,useSelector } from 'redux/hooks';
 import Canvas from 'components/Canvas/GraphCanvas'
-import {allowAddNode,allowAddEdge,startAlgorithm,onSetDirected} from 'redux/actions'
+import {onAllowAddNode,onAllowAddEdge,onStartAlgorithm,onSetDirected,onSetSpeed} from 'redux/actions'
 
 const useStyles = makeStyles((theme)=>({
 	canvasContainer:{
@@ -24,9 +25,17 @@ const useStyles = makeStyles((theme)=>({
 }))
 
 const App = ()=>{
-	const {addNode,addEdge,directed} = useSelector(({algorithm,common})=>({...algorithm,...common}))
+	const {
+		options:{addNode,addEdge,directed},
+		running,
+		speed
+	} = useSelector(({graph,common})=>({...graph,...common}))
 	const dispatch = useDispatch()
 	const classes = useStyles()
+
+	const handleSpeedChange = (event:React.ChangeEvent<{}>,value:number | number[])=>{
+		onSetSpeed((value as number)*1000)(dispatch)
+	}
 
 	return (
 	<Box
@@ -43,23 +52,23 @@ const App = ()=>{
 		</Typography>
 		<Box>
 			<Button
-				onClick={() => allowAddNode()(dispatch)}
+				onClick={() => onAllowAddNode()(dispatch)}
 				variant="contained"
 				className={addNode?classes.buttonOn:classes.buttonOff}
 			>
 				Add node
 			</Button>
 			<Button
-				onClick={()=>startAlgorithm()(dispatch)}
+				onClick={()=>onStartAlgorithm()(dispatch)}
 				variant="contained"
-				className={addNode?classes.buttonOn:classes.buttonOff}
+				className={running?classes.buttonOn:classes.buttonOff}
 			>
 				Start
 			</Button>
 			<Button
 				variant="contained"
 				className={addEdge?classes.buttonOn:classes.buttonOff}
-				onClick={()=>allowAddEdge()(dispatch)}
+				onClick={()=>onAllowAddEdge()(dispatch)}
 			>
 				Add edges
 			</Button>
@@ -70,13 +79,17 @@ const App = ()=>{
 			>
 				Set directed
 			</Button>
+			<Slider
+				defaultValue={0.5}
+			  step={0.1}
+			  marks
+			  min={0.1}
+			  max={3}
+			  valueLabelDisplay="auto"
+			  onChange={handleSpeedChange}
+			/>
 		</Box>
-		<div 
-			id="canvas_container" 
-			className={classes.canvasContainer}
-		>
-			<Canvas/>
-		</div>
+		<Canvas/>
 	</Box>
 	)
 }

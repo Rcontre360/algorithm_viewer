@@ -1,27 +1,16 @@
 import { mocked } from 'ts-jest/utils';
-import Graph from '../../../core/data_structures/Graph'
+import Graph,{FIELDS} from '../../../core/data_structures/Graph'
 import { GraphCase } from './index'
 
-const graph = {
-	addNode:jest.fn(),
-	connectNodes:jest.fn(),
-	getNodeData:jest.fn(),
-	emptyGraph:jest.fn(),
-	setDirected:jest.fn(),
-	getEdges:jest.fn(),
-}
+jest.mock('../../../core/data_structures/Graph')
 
 const algorithmReturn = [{ forward: true, from: -1, to: 0 }]
 const algorithm = jest.fn(() => algorithmReturn)
 
 const clearMethods = ()=>{
 	(Graph as any).mockClear();
-	Object.values(graph).forEach(mock=>mock.mockClear())
+	Object.values(FIELDS).forEach((mock:jest.Mocked<any>)=>mock.mockClear())
 }
-
-jest.mock('../../../core/data_structures/Graph',()=>{
-	return jest.fn().mockImplementation(()=>(graph))
-});
 
 let graphCase: GraphCase<number>;
 
@@ -47,45 +36,54 @@ describe('GraphCase should apply nodes and edges methods', () => {
 	test('Add node', () => {
 		graphCase.canAddNode = true;
 		[1, 2, 3, 4].forEach(val => graphCase.addNode(val))
-		expect(graph.addNode).toHaveBeenCalledTimes(4);
+		expect(FIELDS.addNode).toHaveBeenCalledTimes(4);
 	})
 
 	test('Dont add node if not allowed', () => {
 		graphCase.canAddNode = false
 		graphCase.addNode(1)
-		expect(graph.addNode).toHaveBeenCalledTimes(0)
+		expect(FIELDS.addNode).toHaveBeenCalledTimes(0)
 	})
 
 	test('Dont add node if is adding edges',()=>{
 		graphCase.canAddEdge = true
 		graphCase.addNode(1)
-		expect(graph.addNode).toHaveBeenCalledTimes(0)
+		expect(FIELDS.addNode).toHaveBeenCalledTimes(0)
 	})
 
 	test('Add edge',()=>{
 		graphCase.canAddEdge = true
 		graphCase.addEdge(1,2)
-		expect(graph.connectNodes).toHaveBeenCalledTimes(1)
+		expect(FIELDS.connectNodes).toHaveBeenCalledTimes(1)
 	})
 
 	test('Dont add edge when not allowed',()=>{
 		graphCase.canAddEdge = false
 		graphCase.addEdge(1,2)
-		expect(graph.connectNodes).toHaveBeenCalledTimes(0)
+		expect(FIELDS.connectNodes).toHaveBeenCalledTimes(0)
 	})
 
 	test('Dont add edge when is adding nodes',()=>{
 		graphCase.canAddNode = true
 		graphCase.addEdge(1,2)
-		expect(graph.connectNodes).toHaveBeenCalledTimes(0)
+		expect(FIELDS.connectNodes).toHaveBeenCalledTimes(0)
 	})
 
 	test('Get node data',()=>{
 		graphCase.canAddNode = true
 		graphCase.addNode(123)
 		graphCase.getNodeData(123)
-		expect(graph.getNodeData).toHaveBeenCalledWith(123)
-		expect(graph.getNodeData).toHaveBeenCalledTimes(1)
+		expect(FIELDS.getNodeData).toHaveBeenCalledWith(123)
+		expect(FIELDS.getNodeData).toHaveBeenCalledTimes(1)
+	})
+
+	test('Get graph data', () => {
+		[1, 2, 3, 4].forEach(val => graphCase.addNode(val))
+		const data = graphCase.getGraphData()
+		expect(data.connections).toBeDefined()
+		expect(data.nodes).toBeDefined()
+		expect(FIELDS.getAllNodeData).toHaveBeenCalledTimes(1)
+		expect(FIELDS.getAllNodeConnections).toHaveBeenCalledTimes(1)
 	})
 
 })
@@ -93,13 +91,13 @@ describe('GraphCase should apply nodes and edges methods', () => {
 describe('GraphCase should apply algorithm methods',()=>{
 
 	test('Algorithm called',()=>{
-		graphCase.startAlgorithm()
+		graphCase.startAlgorithm(algorithm)
 		expect(algorithm).toHaveBeenCalledTimes(1)
 	})
 
 	test('Edges should be called with algorithm',()=>{
-		graphCase.startAlgorithm()
-		expect(graph.getEdges).toHaveReturnedTimes(1)
+		graphCase.startAlgorithm(algorithm)
+		expect(FIELDS.getEdges).toHaveReturnedTimes(1)
 	})
 
 })
