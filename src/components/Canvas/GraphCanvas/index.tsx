@@ -121,11 +121,11 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 
 				}, i * speed);
 			});
+			onStopAlgorithm()(dispatch)
 		}
 	},[running])
 
 	useEffect(()=>{
-		console.log('onSetAlgorithm',name)
 		onSetAlgorithm(name)(dispatch)
 	},[name]);
 
