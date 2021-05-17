@@ -23,7 +23,9 @@ describe('Common reducer should return proper state', () => {
 	})
 
 	test('Set speed', () => {
-
+		const newSpeed = 1234;
+		const response = commonReducer(commonState, { type: actions.SET_SPEED, payload: newSpeed })
+		expect(response.speed).toBe(newSpeed)
 	})
 
 	test('Default actions return same state', () => {

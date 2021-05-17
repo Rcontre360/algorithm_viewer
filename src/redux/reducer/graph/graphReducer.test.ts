@@ -35,6 +35,13 @@ describe('Graph reducer should return proper state', () => {
 		expect(response.options.addEdge).toStrictEqual(graphData.addEdge)
 	})
 
+	test('Set directed', () => {
+		const response1 = graphReducer(graphState, { type: actions.SET_DIRECTED, payload: true })
+		const response2 = graphReducer(graphState, { type: actions.SET_DIRECTED, payload: false })
+		expect(response1.options.directed).toBe(true)
+		expect(response2.options.directed).toBe(false)
+	})
+
 	test('Start algorithm', () => {
 		const payload = ['some_outuput'];
 		const response = graphReducer(graphState, { type: actions.START_ALGORITHM, payload })

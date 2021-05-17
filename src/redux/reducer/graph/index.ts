@@ -34,9 +34,13 @@ const mainReducer: RootState = (state = graphState, action: IReduxAction) => {
 				state.options.addNode = action.payload.addNode
 				state.options.addEdge = action.payload.addEdge
 			})
+		case actions.SET_DIRECTED:
+			return produce(state, state => {
+				state.options.directed = action.payload
+			})
 		case actions.START_ALGORITHM:
 			return produce(state, state => {
-			state.output = action.payload
+				state.output = action.payload
 			})
 		case actions.STOP_ALGORITHM:
 			return produce(state, state => {

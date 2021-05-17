@@ -20,7 +20,7 @@ export const onStopAlgorithm = () => {
 	}
 }
 
-export const onSetAlgorithm = (name: 'dfs') => {
+export const onSetAlgorithm = (name: 'dfs' | 'bfs') => {
 	Manager.setAlgorithm(name)
 	return (dispatch: AppDispatch) => {
 		return dispatch({
@@ -36,6 +36,15 @@ export const onSetDataStructure = (name: 'graph') => {
 		return dispatch({
 			type: actions.SET_DATA_STRUCTURE,
 			payload: name
+		})
+	}
+}
+
+export const onSetSpeed = (value: number) => {
+	return (dispatch: AppDispatch) => {
+		return dispatch({
+			type: actions.SET_SPEED,
+			payload: value
 		})
 	}
 }
