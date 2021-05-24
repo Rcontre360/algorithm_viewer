@@ -4,9 +4,9 @@ import {
 	ADD_NODE,
 	ADD_EDGE,
 	SET_DIRECTED,
-} from '../action_types'
-import { AppDispatch } from '../store'
-import { Manager } from '../../core'
+} from '../../action_types'
+import { AppDispatch } from '../../store'
+import Manager from '../../../core/useCases/Manager'
 
 export const onAllowAddEdge = () => {
 	Manager.dataStructure.canAddEdge = true
