@@ -1,6 +1,6 @@
 type AlgorithmSignature = 'bfs' | 'dfs';
 type GraphType = unknown;
-type StartAlgorithm = (graph: GraphInterface < unknown > , options ? : AlgorithmOptions) => object[];
+type StartAlgorithm = (graph: GraphInterface < unknown > , options ? : AlgorithmOptions) => GraphReturn[];
 
 interface AlgorithmOptions {}
 
@@ -31,4 +31,7 @@ interface IGraphEdge {
 interface GraphReturn {
 	from: number;
 	to: number;
+	edgeIndex ? : number;
+	fromData ? : unknown;
+	toData ? : unknown;
 }

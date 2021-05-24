@@ -12,7 +12,6 @@ import {
 } from '../../../redux/actions'
 import {useSelector,useDispatch} from '../../../redux/hooks'
 import {onStopAlgorithm} from '../../../redux/actions'
-import {AlgorithmCaseReturn} from '../../../core/index'
 import painters from '../../painters'
 
 setAutoFreeze(false)
@@ -114,14 +113,11 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
  
 	useEffect(()=>{
 		if (running){
-			output.forEach((val: any, i: number) => {
-				setTimeout(() => {
-
-					changeNodesEdges(painters[name](val,i))
-
-				}, i * speed);
-			});
-			onStopAlgorithm()(dispatch)
+			painters[name]({
+				output,
+				changeNodesEdges,
+				speed
+			})
 		}
 	},[running])
 

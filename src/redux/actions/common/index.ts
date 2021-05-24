@@ -4,7 +4,7 @@ import Manager from '../../../core/useCases/Manager'
 
 export const onStartAlgorithm = () => {
 	return (dispatch: AppDispatch) => {
-		return dispatch({
+		dispatch({
 			type: actions.START_ALGORITHM,
 			payload: Manager.startAlgorithm()
 		})

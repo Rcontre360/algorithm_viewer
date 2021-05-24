@@ -3,9 +3,13 @@ interface DFSOptions {
 	previousIndex ? : number;
 }
 
+export interface DFSReturn extends GraphReturn {
+	forward: boolean;
+}
+
 export class DFS implements AlgorithmHandler {
 	visited: boolean[] = [];
-	returnValue: GraphReturn[] = [];
+	returnValue: DFSReturn[] = [];
 
 	start = (
 		graph: GraphInterface < unknown > ,

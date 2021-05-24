@@ -1,39 +1,53 @@
 import { NodesEdges } from '../../Canvas/GraphCanvas'
+import { BFSReturn } from '../../../core/algorithms/BFS'
 
 interface PainterArguments {
-	output: unknown[];
-	changeNodesEdges: () => void;
+	output: BFSReturn[];
 	speed: number;
+	changeNodesEdges: (handler: (draft: NodesEdges) => void) => void;
 }
 
-const NEWPainter = ({ output, changeNodesEdges, speed }: PainterArguments) => {
-
-}
-
-const DFSPainter = (val: any, index: number) =>
+const BFSPainter = (out: BFSReturn[] | BFSReturn, index: number) =>
 
 	({ nodes, edges }: NodesEdges) => {
 
-		if (val.from === -1) {
-			return nodes[val.to].fill = 'red'
-		}
-
-		if (val.to === -1) {
-			return nodes[val.from].fill = 'grey'
-		}
-
-		if (val.forward) {
-			if (val.edgeIndex !== undefined)
-				edges[val.edgeIndex].stroke = 'orange'
-			nodes[val.from].fill = 'yellow'
-			nodes[val.to].fill = 'red'
+		if (Array.isArray(out)) {
+			const outArray = out as BFSReturn[]
+			outArray.forEach(graphNode => {
+				nodes[graphNode.from].fill = 'red';
+				nodes[graphNode.to].fill = 'orange';
+				edges[graphNode.edgeIndex as number].stroke = 'yellow';
+			})
 		} else {
-			if (val.edgeIndex !== undefined)
-				edges[val.edgeIndex].stroke = 'grey'
-			nodes[val.from].fill = 'grey'
-			nodes[val.to].fill = 'red'
+			nodes[out.to].fill = out.role === 'current' ? 'red' : 'grey';
+			if (out.edgeIndex !== undefined)
+				edges[out.edgeIndex].stroke = 'black'
 		}
 
 	}
 
-export default DFSPainter
+const PainterHandler = ({ output, changeNodesEdges, speed }: PainterArguments) => {
+	const unactive: (BFSReturn[] | BFSReturn)[] = [];
+
+	output.forEach(out => {
+		if (out.role === 'current') {
+			unactive.push(out);
+			unactive.push([]);
+		} else if (out.role === 'poped') {
+			unactive.push(out);
+		} else {
+			const last = unactive.length - 1;
+			(unactive[last] as BFSReturn[]).push(out);
+		}
+	});
+
+	unactive.forEach((out, index) => {
+		setTimeout(() => {
+			changeNodesEdges(BFSPainter(out, index));
+			console.log(out)
+		}, speed * index)
+	})
+
+}
+
+export default PainterHandler

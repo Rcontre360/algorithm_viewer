@@ -1,11 +1,5 @@
 import Graph from '../../../core/data_structures/Graph'
 
-export interface AlgorithmCaseReturn < T > extends GraphReturn {
-	fromData: T;
-	toData: T;
-	edgeIndex: number;
-}
-
 export class GraphCase < T extends GraphType > {
 
 	static signature = 'graph'
@@ -79,11 +73,10 @@ export class GraphCase < T extends GraphType > {
 	}
 
 	startAlgorithm = (algorithm: StartAlgorithm, options ? : object) => {
-		const algorithmData = algorithm!(this.graph, options) as GraphReturn[]
+		const algorithmData = algorithm!(this.graph, options)
 		const edges = this.graph.getEdges()
 
 		const returnVal = algorithmData.map(obj => this.parseReturnValue(obj, edges))
-		console.log('returnVal', returnVal)
 		return returnVal
 	}
 
