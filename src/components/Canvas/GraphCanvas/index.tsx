@@ -83,7 +83,8 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		const points = last.points
 		const {x,y} = node
 
-		if (x!==points[0] && y!==points[1]){
+		if (x !== points[0] && y !== points[1]) {
+			console.log('edge added', node)
 			changeEdges(edges=>{
 				const line = getLastEdge(edges)
 				line.points[2] = x
@@ -91,6 +92,8 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 				line.destNode = nodeId
 			})
 			onAddEdge({src:last.srcNode,dest:nodeId})(dispatch)
+		} else {
+			changeEdges(edges => { edges.pop() })
 		}
 	}
 

@@ -10,7 +10,7 @@ interface PainterArguments {
 const BFSPainter = (out: BFSReturn[] | BFSReturn, index: number) =>
 
 	({ nodes, edges }: NodesEdges) => {
-
+		console.log(out, index)
 		if (Array.isArray(out)) {
 			const outArray = out as BFSReturn[]
 			outArray.forEach(graphNode => {
@@ -42,10 +42,7 @@ const PainterHandler = ({ output, changeNodesEdges, speed }: PainterArguments) =
 	});
 
 	unactive.forEach((out, index) => {
-		setTimeout(() => {
-			changeNodesEdges(BFSPainter(out, index));
-			console.log(out)
-		}, speed * index)
+		setTimeout(changeNodesEdges, speed * index, BFSPainter(out, index))
 	})
 
 }

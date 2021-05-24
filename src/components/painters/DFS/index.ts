@@ -35,9 +35,7 @@ const DFSPainter = (val: DFSReturn, index: number) =>
 
 const PaintHandler = ({ output, changeNodesEdges, speed }: PainterArguments) => {
 	output.forEach((out, index) => {
-		setTimeout(() => {
-			changeNodesEdges(DFSPainter(out, index))
-		}, speed * index)
+		setTimeout(changeNodesEdges, speed * index, DFSPainter(out, index))
 	})
 }
 

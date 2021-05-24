@@ -11,11 +11,11 @@ describe('BFS should return right values', () => {
 		{ role: 'pushed', from: 0, to: 1 },
 		{ role: 'pushed', from: 0, to: 3 },
 		{ role: 'poped', from: -1, to: 0 },
-		{ role: 'current', from: 0, to: 3 },
-		{ role: 'poped', from: 0, to: 3 },
 		{ role: 'current', from: 0, to: 1 },
-		{ role: 'poped', from: 0, to: 1 }
-  ]
+		{ role: 'poped', from: 0, to: 1 },
+		{ role: 'current', from: 0, to: 3 },
+		{ role: 'poped', from: 0, to: 3 }
+	]
 
 	beforeEach(() => {
 		graph = new Graph(rightIndirectedConnection, nodeData)

@@ -39,7 +39,7 @@ export class BFS implements AlgorithmHandler {
 		this.queue.push({ to: startIndex, from: -1 });
 
 		while (this.queue.length > 0) {
-			const currentNode = this.queue.pop();
+			const currentNode = this.queue.shift();
 
 			this.visited[currentNode!.to] = true
 			this.returnValue.push({
