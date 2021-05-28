@@ -64,9 +64,11 @@ export class BFS implements AlgorithmHandler {
 			})
 			prevIndex = currentNode!.to
 
+			const queueFinishedCopy = this.queue.map(({ to }) => to).concat(nodes)
+
 			for (let i of nodes) {
 				if (this.visited[i]) continue
-				this.visited[i] = true
+				this.queue.push({ to: i, from: currentNode!.to });
 				this.returnValue.push({
 					role: 'pushed',
 					from: currentNode!.to,
@@ -75,10 +77,9 @@ export class BFS implements AlgorithmHandler {
 						nodes,
 						visited: this.visited,
 						current: currentNode!.to,
-						queue: this.queue.map(({ to }) => to)
+						queue: queueFinishedCopy
 					})
 				})
-				this.queue.push({ to: i, from: currentNode!.to });
 			}
 
 			this.returnValue.push({
