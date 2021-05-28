@@ -3,8 +3,15 @@ interface DFSOptions {
 	previousIndex ? : number;
 }
 
+interface StateMapper{
+	visited: boolean[];
+	function: number;
+	nodes: number[];
+}
+
 export interface DFSReturn extends GraphReturn {
 	forward: boolean;
+	state?: string[];
 }
 
 export class DFS implements AlgorithmHandler {
@@ -40,13 +47,14 @@ export class DFS implements AlgorithmHandler {
 			return
 
 		this.visited[startIndex] = true
+		const nodes: number[] = graph.getNodeConnections(startIndex)
+
 		this.returnValue.push({
 			forward: true,
 			from: previousIndex,
-			to: startIndex
+			to: startIndex,
+			state: this.stateParser({ nodes, function: startIndex, visited: this.visited })
 		})
-
-		const nodes: number[] = graph.getNodeConnections(startIndex)
 
 		for (let i = 0; i < nodes.length; i++)
 			if (!this.visited[nodes[i]])
@@ -59,8 +67,17 @@ export class DFS implements AlgorithmHandler {
 		this.returnValue.push({
 			forward: false,
 			from: startIndex,
-			to: previousIndex
+			to: previousIndex,
+			state: this.stateParser({ nodes, function: startIndex, visited: this.visited })
 		})
+	}
+
+	stateParser = (state:StateMapper)=>{
+		return [
+			`Array visited=[${state.visited.join(', ')}]`,
+			`function dfs([${state.function}])`,
+			`Array neighbours = [${state.nodes.join(', ')}]`,
+		]
 	}
 }
 

@@ -2,8 +2,16 @@ interface BFSOptions {
 	startIndex ? : number;
 }
 
+interface StateMapper{
+	visited: boolean[];
+	current: number;
+	nodes: number[];
+	queue: number[];
+}
+
 export interface BFSReturn extends GraphReturn {
 	role: 'current' | 'pushed' | 'poped';
+	state: string[];
 }
 
 export class BFS implements AlgorithmHandler {
@@ -40,16 +48,21 @@ export class BFS implements AlgorithmHandler {
 
 		while (this.queue.length > 0) {
 			const currentNode = this.queue.shift();
+			const nodes = graph.getNodeConnections(currentNode!.to);
 
 			this.visited[currentNode!.to] = true
 			this.returnValue.push({
 				role: 'current',
 				from: currentNode!.from,
 				to: currentNode!.to,
+				state:this.stateMapper({
+					nodes,
+					visited:this.visited,
+					current:currentNode!.to,
+					queue:this.queue.map(({to})=>to)
+				})
 			})
 			prevIndex = currentNode!.to
-
-			const nodes = graph.getNodeConnections(currentNode!.to);
 
 			for (let i of nodes) {
 				if (this.visited[i]) continue
@@ -58,6 +71,12 @@ export class BFS implements AlgorithmHandler {
 					role: 'pushed',
 					from: currentNode!.to,
 					to: i,
+					state: this.stateMapper({
+						nodes,
+						visited: this.visited,
+						current: currentNode!.to,
+						queue: this.queue.map(({ to }) => to)
+					})
 				})
 				this.queue.push({ to: i, from: currentNode!.to });
 			}
@@ -66,8 +85,23 @@ export class BFS implements AlgorithmHandler {
 				role: 'poped',
 				from: currentNode!.from,
 				to: currentNode!.to,
+				state: this.stateMapper({
+					nodes,
+					visited: this.visited,
+					current: currentNode!.to,
+					queue: this.queue.map(({ to }) => to)
+				})
 			})
 		}
+	}
+
+	stateMapper = (state:StateMapper)=>{
+		return [
+			`Queue stack = [${state.queue.join(', ')}]`,
+			`Array visited = [${state.visited.join(', ')}]`,
+			`Array neighbours = [${state.nodes.join(', ')}]`,
+			`Integer currentNode = ${state.current}`,
+		]
 	}
 }
 

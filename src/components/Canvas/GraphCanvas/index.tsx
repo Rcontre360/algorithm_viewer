@@ -38,6 +38,7 @@ export interface NodesEdges{
 }
 
 const Canvas = (props:React.HTMLAttributes<any>) => {
+	const {width,height} = props
 	const { 
 		options: { directed, addNode, addEdge },
 		algorithm:{name,dataStructure},
@@ -146,8 +147,8 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 	{process.env.NODE_ENV !== 'test'
 		&&
 		<Stage 
-			width={window.innerWidth} 
-			height={window.innerHeight}
+			width={width}
+			height={height}
 			onMouseUp={({target})=>{
 				if (!addEdge) return; 
 				const {attrs} = target
