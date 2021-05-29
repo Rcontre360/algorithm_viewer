@@ -1,7 +1,6 @@
 import { fabric } from 'fabric'
-import { INodeStyles, IEdgeStyles } from '../../adapters'
 
-export const nodeStyles: INodeStyles = {
+export const nodeStyles = {
 	unactive: {
 		fill: "blue",
 		radius: 20,
@@ -31,7 +30,7 @@ export const nodeStyles: INodeStyles = {
 	}
 }
 
-export const edgeStyles: IEdgeStyles = {
+export const edgeStyles = {
 	unactive: {
 		stroke: "black",
 		strokeWidth: 3

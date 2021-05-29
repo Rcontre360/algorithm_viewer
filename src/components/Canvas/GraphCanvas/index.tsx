@@ -3,7 +3,7 @@ import {fabric} from 'fabric'
 import produce, { setAutoFreeze } from 'immer'
 import { Stage, Layer, Circle, Text, Line, Arrow } from 'react-konva';
 
-import { getRelativeCoordenades } from '../../../utils'
+import { getRelativeCoordenades,getCircleBorderPoint } from '../../../utils'
 import {
 	onAddNode,
 	onAddEdge,
@@ -81,20 +81,19 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		const last = getLastEdge(edges)
 		const nodeId = parseInt(node.id.split('-')[1]);
 		const points = last.points
-		const {x,y} = node
+		const {x,y} = getCircleBorderPoint({
+			radius:node.radius,
+			center:node,
+			point:{x:last.points[0],y:last.points[1]}
+		})
 
-		if (x !== points[0] && y !== points[1]) {
-			console.log('edge added', node)
-			changeEdges(edges=>{
-				const line = getLastEdge(edges)
-				line.points[2] = x
-				line.points[3] = y
-				line.destNode = nodeId
-			})
-			onAddEdge({src:last.srcNode,dest:nodeId})(dispatch)
-		} else {
-			changeEdges(edges => { edges.pop() })
-		}
+		changeEdges(edges => {
+			const line = getLastEdge(edges)
+			line.points[2] = x
+			line.points[3] = y
+			line.destNode = nodeId
+		})
+		onAddEdge({src:last.srcNode,dest:nodeId})(dispatch)
 	}
 
 	function updateCurrentLine(event:React.MouseEvent){
@@ -152,9 +151,10 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 			onMouseUp={({target})=>{
 				if (!addEdge) return; 
 				const {attrs} = target
-				const {id} = attrs
+				const {id,x,y} = attrs
+				const points = getLastEdge(edges).points
 
-				if (id && id.includes('node'))
+				if (id && id.includes('node') && x !== points[0] && y !== points[1])
 					handleAddEdge(attrs)
 				else 
 					changeEdges(edges=>{edges.pop()})
