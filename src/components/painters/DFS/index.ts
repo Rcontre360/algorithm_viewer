@@ -1,6 +1,13 @@
 import { NodesEdges } from '../../Canvas/GraphCanvas'
+import { DFSReturn } from '../../../core/algorithms/DFS'
 
-const DFSPainter = (val: any, index: number) =>
+interface PainterArguments {
+	output: DFSReturn[];
+	speed: number;
+	changeNodesEdges: (handler: (draft: NodesEdges) => void) => void;
+}
+
+const DFSPainter = (val: DFSReturn, index: number) =>
 
 	({ nodes, edges }: NodesEdges) => {
 
@@ -26,4 +33,10 @@ const DFSPainter = (val: any, index: number) =>
 
 	}
 
-export default DFSPainter
+const PaintHandler = ({ output, changeNodesEdges, speed }: PainterArguments) => {
+	output.forEach((out, index) => {
+		setTimeout(changeNodesEdges, speed * index, DFSPainter(out, index))
+	})
+}
+
+export default PaintHandler

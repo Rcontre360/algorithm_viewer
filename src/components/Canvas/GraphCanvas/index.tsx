@@ -12,7 +12,6 @@ import {
 } from '../../../redux/actions'
 import {useSelector,useDispatch} from '../../../redux/hooks'
 import {onStopAlgorithm} from '../../../redux/actions'
-import {AlgorithmCaseReturn} from '../../../core/index'
 import painters from '../../painters'
 
 setAutoFreeze(false)
@@ -84,7 +83,8 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		const points = last.points
 		const {x,y} = node
 
-		if (x!==points[0] && y!==points[1]){
+		if (x !== points[0] && y !== points[1]) {
+			console.log('edge added', node)
 			changeEdges(edges=>{
 				const line = getLastEdge(edges)
 				line.points[2] = x
@@ -92,6 +92,8 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 				line.destNode = nodeId
 			})
 			onAddEdge({src:last.srcNode,dest:nodeId})(dispatch)
+		} else {
+			changeEdges(edges => { edges.pop() })
 		}
 	}
 
@@ -114,14 +116,11 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
  
 	useEffect(()=>{
 		if (running){
-			output.forEach((val: any, i: number) => {
-				setTimeout(() => {
-
-					changeNodesEdges(painters[name](val,i))
-
-				}, i * speed);
-			});
-			onStopAlgorithm()(dispatch)
+			painters[name]({
+				output,
+				changeNodesEdges,
+				speed
+			})
 		}
 	},[running])
 

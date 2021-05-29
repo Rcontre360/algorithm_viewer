@@ -2,10 +2,14 @@ interface BFSOptions {
 	startIndex ? : number;
 }
 
+export interface BFSReturn extends GraphReturn {
+	role: 'current' | 'pushed' | 'poped';
+}
+
 export class BFS implements AlgorithmHandler {
 	visited: boolean[] = [];
-	returnValue: GraphReturn[] = [];
-	queue: number[] = [];
+	returnValue: BFSReturn[] = [];
+	queue: ({ from: number, to: number })[] = [];
 
 	constructor() {}
 
@@ -32,32 +36,37 @@ export class BFS implements AlgorithmHandler {
 		} = options
 		let prevIndex = -1;
 
-		this.queue.push(startIndex);
+		this.queue.push({ to: startIndex, from: -1 });
 
 		while (this.queue.length > 0) {
-			const currentNode = this.queue.pop() as number;
+			const currentNode = this.queue.shift();
 
-			this.visited[currentNode] = true
+			this.visited[currentNode!.to] = true
 			this.returnValue.push({
-				active: true,
-				from: -1,
-				to: currentNode,
+				role: 'current',
+				from: currentNode!.from,
+				to: currentNode!.to,
 			})
-			prevIndex = currentNode
+			prevIndex = currentNode!.to
 
-			this.visited[currentNode] = true
-			const nodes = graph.getNodeConnections(currentNode);
+			const nodes = graph.getNodeConnections(currentNode!.to);
 
 			for (let i of nodes) {
 				if (this.visited[i]) continue
 				this.visited[i] = true
 				this.returnValue.push({
-					active: false,
-					from: currentNode,
+					role: 'pushed',
+					from: currentNode!.to,
 					to: i,
 				})
-				this.queue.push(i);
+				this.queue.push({ to: i, from: currentNode!.to });
 			}
+
+			this.returnValue.push({
+				role: 'poped',
+				from: currentNode!.from,
+				to: currentNode!.to,
+			})
 		}
 	}
 }

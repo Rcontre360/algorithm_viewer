@@ -2,11 +2,15 @@ import * as actions from '../../action_types';
 import { AppDispatch } from '../../store'
 import Manager from '../../../core/useCases/Manager'
 
-export const onStartAlgorithm = () => {
+export const onStartAlgorithm = (time: number) => {
 	return (dispatch: AppDispatch) => {
-		return dispatch({
+		dispatch({
 			type: actions.START_ALGORITHM,
 			payload: Manager.startAlgorithm()
+		})
+		setTimeout(dispatch, time + 100, {
+			type: actions.STOP_ALGORITHM,
+			payload: false
 		})
 	}
 }

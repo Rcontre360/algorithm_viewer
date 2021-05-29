@@ -92,7 +92,7 @@ const App = ()=>{
 					Add node
 				</Button>
 				<Button
-					onClick={()=>onStartAlgorithm()(dispatch)}
+					onClick={()=>onStartAlgorithm(speed)(dispatch)}
 					variant="contained"
 					className={running?classes.buttonOn:classes.buttonOff}
 				>
