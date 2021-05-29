@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from "react"
+import React from "react"
 import { fabric } from "fabric"
 import { applyMiddleware, createStore } from 'redux'
 import Ty from '@material-ui/core/Typography';
@@ -15,6 +15,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 
 import { useDispatch,useSelector } from 'redux/hooks';
 import Canvas from 'components/Canvas/GraphCanvas'
+import InfoBar from 'components/InfoBar'
 import {
 	onAllowAddNode,
 	onAllowAddEdge,
@@ -45,8 +46,10 @@ const App = ()=>{
 		running,
 		speed
 	} = useSelector(({graph,common})=>({...graph,...common}))
+	const canvasContainerRef = React.useRef()
 	const dispatch = useDispatch()
 	const classes = useStyles()
+	const {clientWidth,clientHeight} = canvasContainerRef.current || {clientWidth:0,clientHeight:0}
 
 	const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -149,8 +152,10 @@ const App = ()=>{
 	      </Popper>
 	  	</Box>
 		</Box>
-
-		<Canvas/>
+		<Box ref={canvasContainerRef} display='flex' style={{position:'relative'}} width='75%' height='50vh'>
+			<Canvas width={clientWidth} height={clientHeight}/>
+			<InfoBar/>
+		</Box>
 	</Box>
 	)
 }
