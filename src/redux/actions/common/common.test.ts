@@ -20,7 +20,7 @@ describe('Redux common actions should dispatch correct actions', () => {
 	})
 
 	test('On start algorithm', () => {
-		onStartAlgorithm()(dispatch)
+		onStartAlgorithm(100)(dispatch)
 		expect(dispatch).toHaveBeenCalledWith({ type: actions.START_ALGORITHM, payload: Manager.startAlgorithm() })
 	})
 

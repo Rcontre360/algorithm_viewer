@@ -19,7 +19,7 @@ jest.mock("react-redux", () => ({
 
 const component = (
 	<Provider store={store}>
-		<Canvas />
+		<Canvas width={100} height={100}/>
 	</Provider>
 )
 

@@ -33,10 +33,10 @@ const InfoBar = (props: React.HTMLAttributes<any>) => {
 
 	return (
 		<div {...props} className={classes.container} >
-			<Typo nonWrap>Variables: </Typo>  
+			<Typo noWrap>Variables: </Typo>  
 			{
 				algorithmCode && algorithmCode.map(code => (
-					<Typo nonWrap>{code}</Typo>
+					<Typo noWrap>{code}</Typo>
 				))
 			}
 		</div>
