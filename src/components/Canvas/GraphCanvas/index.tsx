@@ -1,4 +1,4 @@
-import React, {useState,useEffect,MouseEvent} from 'react';
+import React from 'react';
 import {fabric} from 'fabric'
 import produce, { setAutoFreeze } from 'immer'
 import { Stage, Layer, Circle, Text, Line, Arrow } from 'react-konva';
@@ -37,17 +37,19 @@ export interface NodesEdges{
 	edges: EdgeConfig[];
 }
 
-const Canvas = (props:React.HTMLAttributes<any>) => {
+const Canvas = (props:React.HTMLAttributes<any> & {width:number,height:number}) => {
+	
 	const {width,height} = props
 	const { 
-		options: { directed, addNode, addEdge },
+		options: { directed, addNode, addEdge, data },
 		algorithm:{name,dataStructure},
 		output,
 		running,
 		speed,
 	} = useSelector(({graph,common})=>({...graph,...common}))
 
-	const [{ nodes, edges }, setNodesEdges] = useState<NodesEdges>({ nodes: [], edges: [] });
+	const [{ nodes, edges }, setNodesEdges] = React.useState<NodesEdges>({ nodes: [], edges: [] });
+	const [isAddingEdge,setIsAddingEdge] = React.useState<boolean>(false)
 	const dispatch = useDispatch()
 	const nodeSize = 20;
 
@@ -65,7 +67,7 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		changeNodesEdges(({edges})=>handleData(edges))
 	}
 
-	function handleAddNode(event: MouseEvent) {
+	function handleAddNode(event: React.MouseEvent) {
 		const {x,y} = getRelativeCoordenades(event) 
 		const newNode = {
 			x:x,
@@ -81,19 +83,6 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 	function handleAddEdge(node:NodeConfig){
 		const last = getLastEdge(edges)
 		const nodeId = parseInt(node.id.split('-')[1]);
-		const points = last.points
-		const {x,y} = getCircleBorderPoint({
-			radius:node.radius,
-			center:node,
-			point:{x:last.points[0],y:last.points[1]}
-		})
-
-		changeEdges(edges => {
-			const line = getLastEdge(edges)
-			line.points[2] = x
-			line.points[3] = y
-			line.destNode = nodeId
-		})
 		onAddEdge({src:last.srcNode,dest:nodeId})(dispatch)
 	}
 
@@ -110,11 +99,11 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		return edges[edges.length-1] || {destNode:true}
 	}
 
-	useEffect(()=>{
+	React.useEffect(()=>{
 		setNodesEdges({nodes:[],edges:[]})
 	},[directed])
  
-	useEffect(()=>{
+	React.useEffect(()=>{
 		if (running){
 			painters[name]({
 				output,
@@ -124,13 +113,54 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 		}
 	},[running])
 
-	useEffect(()=>{
+	React.useEffect(()=>{
 		onSetAlgorithm(name)(dispatch)
 	},[name]);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		onSetDataStructure(dataStructure)(dispatch)
 	}, [dataStructure]);
+
+	React.useEffect(()=>{
+		const removeEdge:any = (event:MouseEvent)=>{
+			if (!isAddingEdge) return;
+			changeEdges(edges => { edges.pop() })
+			setIsAddingEdge(false)
+		}
+		window.addEventListener('mouseup',removeEdge)
+		return ()=>{
+			window.removeEventListener('mouseup',removeEdge)
+		}
+	},[isAddingEdge])
+
+	React.useEffect(()=>{
+		if (!data)
+			return
+		changeNodesEdges((nodesEdges)=>{
+			const nodes = nodesEdges.nodes
+			nodesEdges.edges = [];
+
+			data.connections.forEach((nodeConnections:number[],index:number)=>{
+				nodeConnections.forEach(conect=>{
+					const nodeSrc = nodes[index]
+					const nodeDest = nodes[conect]
+					const {x,y} = getCircleBorderPoint({
+						radius:nodeDest.radius,
+						center:nodeDest,
+						point:nodeSrc,
+					})
+					const destinyPoints = directed?[x,y]:[nodeDest.x,nodeDest.y]
+
+					nodesEdges.edges.push({
+						points: [nodeSrc.x, nodeSrc.y, destinyPoints[0],destinyPoints[1]],
+						srcNode:index,
+						destNode:conect,
+						stroke:'black',
+					})
+				})
+			})
+		})
+	},[data && data.connections])
 
   return (
   <div 
@@ -150,7 +180,7 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 			width={width}
 			height={height}
 			onMouseUp={({target})=>{
-				if (!addEdge) return; 
+				if (!isAddingEdge) return; 
 				const {attrs} = target
 				const {id,x,y} = attrs
 				const points = getLastEdge(edges).points
@@ -159,6 +189,7 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 					handleAddEdge(attrs)
 				else 
 					changeEdges(edges=>{edges.pop()})
+				setIsAddingEdge(false)
 			}}
 		>
 			<Layer>
@@ -181,6 +212,8 @@ const Canvas = (props:React.HTMLAttributes<any>) => {
 						<Circle
 							key={i}
 							onMouseDown={() => {
+								if (!addEdge) return;
+								setIsAddingEdge(true);
 								changeEdges(edges=>{
 									edges.push({
 										stroke: 'black',
