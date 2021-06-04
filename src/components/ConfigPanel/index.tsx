@@ -1,6 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 import {useDispatch} from 'redux/hooks'
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -32,7 +33,7 @@ import {
   onSetAlgorithm,
 } from 'redux/actions'
 
-const drawerWidth = 400;
+const drawerWidth = 300;
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
@@ -90,19 +91,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type Props = {
-  setOpen:(open:boolean)=>void;
-  sizeOnOpen:(size:number)=>void;
   open:boolean;
-  title?:React.ComponentType<unknown> | string;
+  title?: React.ComponentType<unknown> | string;
+  setOpen: (open: boolean) => void;
 };
 
 const ConfigPanel: React.FC<Props> = (props) => {
 
-  const {open,setOpen,title,children,sizeOnOpen} = props;
+  const {open,title,children,setOpen} = props;
   const [openList,setOpenList] = React.useState<boolean>(true);
   const classes = useStyles()
   const theme = useTheme();
   const dispatch = useDispatch()
+  const isUpSM = useMediaQuery((theme:any) => theme.breakpoints.up('sm'));
 
   const handleSpeedChange = (event:React.ChangeEvent<{}>,value:number | number[])=>{
     onSetSpeed((value as number)*1000)(dispatch)
@@ -112,10 +113,6 @@ const ConfigPanel: React.FC<Props> = (props) => {
     (event:React.MouseEvent<EventTarget>)=>{
       onSetAlgorithm(algorithm)(dispatch)
     }
-
-  React.useEffect(()=>{
-    sizeOnOpen(open?drawerWidth:0)
-  },[open])
 
   return(
   <>
@@ -149,67 +146,69 @@ const ConfigPanel: React.FC<Props> = (props) => {
         paper: classes.drawerPaper,
       }}
     >
-      <div className={classes.drawerHeader}>
-        {title || <div></div>}
-        <IconButton onClick={e=>setOpen(false)}>
-          {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-        </IconButton>
-      </div>
-      <List
-        component="nav"
-        aria-labelledby="nested-list-subheader"
-        subheader={
-          <ListSubheader component="div" id="nested-list-subheader">
-            Nested List Items
-          </ListSubheader>
-        }
-        className={classes.list}
-      >
-        <ListItem>
-          <ListItemIcon>
-            <SendIcon />
-          </ListItemIcon>
-          <ListItemText primary="Data structure:" />
-          <ListItemText primary="Graph" />
-        </ListItem>
-        <ListItem>
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Algorithm:" />
-          <ListItemText primary="Deep First Search" />
-        </ListItem>
-        <ListItem button onClick={e=>setOpenList(!openList)} >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Available Algorithms" />
-          {openList ? <ExpandMore />:<ExpandLess /> }
-        </ListItem>
-        <Collapse in={openList} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding className={classes.nested}>
-            <ListItem button onClick={handleSetAlgorithm('dfs')}>
-              <ListItemIcon>
-                <StarBorder />
-              </ListItemIcon>
-              <ListItemText primary="Deep First Search" />
-            </ListItem>
-            <ListItem button onClick={handleSetAlgorithm('bfs')}>
-              <ListItemIcon>
-                <StarBorder />
-              </ListItemIcon>
-              <ListItemText primary="Breath First Search" />
-            </ListItem>
-          </List>
-        </Collapse>
-      </List>
+      <Box display='flex' flexDirection='column'>
+        <div className={classes.drawerHeader}>
+          {title || <div></div>}
+          <IconButton onClick={e=>setOpen(false)}>
+            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+        </div>
+        <List
+          component="nav"
+          aria-labelledby="nested-list-subheader"
+          subheader={
+            <ListSubheader component="div" id="nested-list-subheader">
+              Nested List Items
+            </ListSubheader>
+          }
+          className={classes.list}
+        >
+          <ListItem>
+            <ListItemIcon>
+              <SendIcon />
+            </ListItemIcon>
+            <ListItemText primary="Data structure:" />
+            <ListItemText primary="Graph" />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <DraftsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Algorithm:" />
+            <ListItemText primary="Deep First Search" />
+          </ListItem>
+          <ListItem button onClick={e=>setOpenList(!openList)} >
+            <ListItemIcon>
+              <DraftsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Available Algorithms" />
+            {openList ? <ExpandMore />:<ExpandLess /> }
+          </ListItem>
+          <Collapse in={openList} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding className={classes.nested}>
+              <ListItem button onClick={handleSetAlgorithm('dfs')}>
+                <ListItemIcon>
+                  <StarBorder />
+                </ListItemIcon>
+                <ListItemText primary="Deep First Search" />
+              </ListItem>
+              <ListItem button onClick={handleSetAlgorithm('bfs')}>
+                <ListItemIcon>
+                  <StarBorder />
+                </ListItemIcon>
+                <ListItemText primary="Breath First Search" />
+              </ListItem>
+            </List>
+          </Collapse>
+        </List>
+      </Box>
       <Card className={classes.innerCard}>
         <Box display='flex' alignContent='center' flexDirection='column' padding='1em'>
           <Box display='flex' justifyContent='space-between'>
             <Typo variant='h6'>
               Set speed
             </Typo>
-            <Button variant="contained" color='primary' onClick={e=>onStartAlgorithm(0)(dispatch)}>
+            <Button variant="contained" size='small' color='primary' onClick={e=>onStartAlgorithm(0)(dispatch)}>
               Start Algorithm
             </Button>
           </Box>
@@ -225,7 +224,7 @@ const ConfigPanel: React.FC<Props> = (props) => {
         </Box>
       </Card>
     </Drawer>
-    <Box style={{width:'100%',paddingLeft:open?drawerWidth:0}}>
+    <Box style={{width:'100%',paddingLeft:(open && isUpSM)?drawerWidth:0}}>
       {children}
     </Box>
   </>

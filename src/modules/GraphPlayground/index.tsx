@@ -1,4 +1,5 @@
 import React from "react"
+import clsx from 'clsx'
 import Typo from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
@@ -29,6 +30,30 @@ const useStyles = makeStyles((theme)=>({
 		margin:0,
 		position:'relative'
 	},
+	subContainer:{
+		padding:'1em', 
+		margin:'1em 0em',
+		display:'flex',
+		justifyContent:'space-around',
+		alignItems:'center',
+		width:'100%',
+	},
+	subContainerOpen:{
+		[theme.breakpoints.down('sm')]:{
+			flexDirection:'column',
+			'& >*':{
+				margin:'1em'
+			}
+		}
+	},
+	subContainerClose:{
+		'@media screen and (max-width:700px)': {
+			flexDirection: 'column',
+			'& >*': {
+				margin: '1em'
+			}
+		}
+	},
 	canvasContainer:{
 		boxShadow:`0px 0px 5px ${theme.palette.secondary.light}`,
 		width:'95%',
@@ -45,7 +70,6 @@ const useStyles = makeStyles((theme)=>({
 const GraphPlayground = ()=>{
 
 	const [open,setOpen] = React.useState<boolean>(true);
-	const [canvasOffset,setCanvasOffset] = React.useState<number>(0)
 	const {addNode,addEdge,directed} = useSelector(({graph,common})=>({...graph.options}))
 	const canvasContainer = React.useRef<HTMLDivElement>()
 	const dispatch = useDispatch()
@@ -58,13 +82,15 @@ const GraphPlayground = ()=>{
 		<ConfigPanel 
 			open={open} 
 			setOpen={setOpen}
-			sizeOnOpen={size=>setCanvasOffset(size)}
 		>
 			<Box className={classes.container}>
 				<Box width='100%' display='flex' justifyContent='center'>
 					<InfoBar/>
 				</Box>
-				<Box p={2} mx={0} display='flex' justifyContent='space-around' alignItems='center' width='100%'>
+				<Box className={clsx(classes.subContainer,{
+					[classes.subContainerOpen]:open,
+					[classes.subContainerClose]:!open,
+				})}>
 					<Button
 						variant={addEdge?'contained':'outlined'}
 						color='secondary'
