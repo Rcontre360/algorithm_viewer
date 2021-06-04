@@ -2,6 +2,8 @@ import React from 'react';
 import {fabric} from 'fabric'
 import produce, { setAutoFreeze } from 'immer'
 import { Stage, Layer, Circle, Text, Line, Arrow } from 'react-konva';
+import purple from "@material-ui/core/colors/purple";
+import green from "@material-ui/core/colors/green";
 
 import { getRelativeCoordenades,getCircleBorderPoint } from '../../../utils'
 import {
@@ -74,7 +76,7 @@ const Canvas = (props:React.HTMLAttributes<any> & {width:number,height:number}) 
 			y:y,
 			radius:nodeSize,
 			id:`node-${nodes.length}`,
-			fill:'green'
+			fill:green['300']
 		}
 		changeNodes(nodes => { nodes.push(newNode) })
 		onAddNode(nodes.length)(dispatch)
@@ -99,39 +101,25 @@ const Canvas = (props:React.HTMLAttributes<any> & {width:number,height:number}) 
 		return edges[edges.length-1] || {destNode:true}
 	}
 
-	React.useEffect(()=>{
-		setNodesEdges({nodes:[],edges:[]})
-	},[directed])
- 
-	React.useEffect(()=>{
-		if (running){
-			painters[name]({
-				output,
-				changeNodesEdges,
-				speed
+	const parseEdgesData = ({nodes,edges}:NodesEdges)=>{
+		data.edges.forEach((edge:{nodeSrc:number,nodeDest:number})=>{
+			const nodeSrc = nodes[edge.nodeSrc]
+			const nodeDest = nodes[edge.nodeDest]
+			const {x,y} = getCircleBorderPoint({
+				radius:nodeDest.radius,
+				center:nodeDest,
+				point:nodeSrc,
+			});
+			const destinyPoints = directed?[x,y]:[nodeDest.x,nodeDest.y]
+
+			edges.push({
+				points: [nodeSrc.x, nodeSrc.y, destinyPoints[0],destinyPoints[1]],
+				srcNode:edge.nodeSrc,
+				destNode:edge.nodeDest,
+				stroke:purple['300'],
 			})
-		}
-	},[running])
-
-	React.useEffect(()=>{
-		onSetAlgorithm(name)(dispatch)
-	},[name]);
-
-	React.useEffect(() => {
-		onSetDataStructure(dataStructure)(dispatch)
-	}, [dataStructure]);
-
-	React.useEffect(()=>{
-		const removeEdge:any = (event:MouseEvent)=>{
-			if (!isAddingEdge) return;
-			changeEdges(edges => { edges.pop() })
-			setIsAddingEdge(false)
-		}
-		window.addEventListener('mouseup',removeEdge)
-		return ()=>{
-			window.removeEventListener('mouseup',removeEdge)
-		}
-	},[isAddingEdge])
+		})
+	}
 
 	React.useEffect(()=>{
 		if (!data)
@@ -139,28 +127,43 @@ const Canvas = (props:React.HTMLAttributes<any> & {width:number,height:number}) 
 		changeNodesEdges((nodesEdges)=>{
 			const nodes = nodesEdges.nodes
 			nodesEdges.edges = [];
-
-			data.connections.forEach((nodeConnections:number[],index:number)=>{
-				nodeConnections.forEach(conect=>{
-					const nodeSrc = nodes[index]
-					const nodeDest = nodes[conect]
-					const {x,y} = getCircleBorderPoint({
-						radius:nodeDest.radius,
-						center:nodeDest,
-						point:nodeSrc,
-					})
-					const destinyPoints = directed?[x,y]:[nodeDest.x,nodeDest.y]
-
-					nodesEdges.edges.push({
-						points: [nodeSrc.x, nodeSrc.y, destinyPoints[0],destinyPoints[1]],
-						srcNode:index,
-						destNode:conect,
-						stroke:'black',
-					})
-				})
-			})
+			parseEdgesData(nodesEdges)
 		})
 	},[data && data.connections])
+
+	React.useEffect(() => {
+		setNodesEdges({ nodes: [], edges: [] })
+	}, [directed])
+
+	React.useEffect(() => {
+		if (running) {
+			painters[name]({
+				output,
+				changeNodesEdges,
+				speed
+			})
+		}
+	}, [running])
+
+	React.useEffect(() => {
+		onSetAlgorithm(name)(dispatch)
+	}, [name]);
+
+	React.useEffect(() => {
+		onSetDataStructure(dataStructure)(dispatch)
+	}, [dataStructure]);
+
+	React.useEffect(() => {
+		const removeEdge: any = (event: MouseEvent) => {
+			if (!isAddingEdge) return;
+			changeEdges(edges => { edges.pop() })
+			setIsAddingEdge(false)
+		}
+		window.addEventListener('mouseup', removeEdge)
+		return () => {
+			window.removeEventListener('mouseup', removeEdge)
+		}
+	}, [isAddingEdge])
 
   return (
   <div 
@@ -216,7 +219,7 @@ const Canvas = (props:React.HTMLAttributes<any> & {width:number,height:number}) 
 								setIsAddingEdge(true);
 								changeEdges(edges=>{
 									edges.push({
-										stroke: 'black',
+										stroke: purple['300'],
 										srcNode: i,
 										points: [
 											node.x,

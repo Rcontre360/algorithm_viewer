@@ -83,7 +83,8 @@ export class GraphCase < T extends GraphType > {
 	getGraphData = () => {
 		return {
 			connections: this.graph.getAllNodeConnections(),
-			nodes: this.graph.getAllNodeData()
+			nodes: this.graph.getAllNodeData(),
+			edges:this.graph.getEdges(),
 		}
 	}
 
