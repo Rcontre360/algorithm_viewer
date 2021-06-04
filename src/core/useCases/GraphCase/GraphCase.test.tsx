@@ -82,6 +82,7 @@ describe('GraphCase should apply nodes and edges methods', () => {
 		const data = graphCase.getGraphData()
 		expect(data.connections).toBeDefined()
 		expect(data.nodes).toBeDefined()
+		expect(data.edges).toBeDefined()
 		expect(FIELDS.getAllNodeData).toHaveBeenCalledTimes(1)
 		expect(FIELDS.getAllNodeConnections).toHaveBeenCalledTimes(1)
 	})

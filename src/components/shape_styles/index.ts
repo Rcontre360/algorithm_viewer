@@ -1,46 +1,32 @@
 import { fabric } from 'fabric'
+import grey from "@material-ui/core/colors/grey";
+import purple from "@material-ui/core/colors/purple";
+import green from "@material-ui/core/colors/green";
+import red from "@material-ui/core/colors/red";
 
 export const nodeStyles = {
 	unactive: {
-		fill: "blue",
-		radius: 20,
-		lockMovementX: true,
-		lockMovementY: true,
-		originX: "center",
-		originY: "center",
-		borderColor: 'lightblue'
+		fill: grey['700'],
+		borderColor: green['100'],
 	},
 	active: {
-		fill: "orange",
-		radius: 20,
-		lockMovementX: true,
-		lockMovementY: true,
-		originX: "center",
-		originY: "center",
-		borderColor: 'red'
+		fill: red['300'],
+		borderColor: red['100']
 	},
 	visited: {
-		fill: "lightgrey",
-		radius: 20,
-		lockMovementX: true,
-		lockMovementY: true,
-		originX: "center",
-		originY: "center",
-		borderColor: 'grey'
+		fill: purple['300'],
+		borderColor: purple['100']
 	}
 }
 
 export const edgeStyles = {
 	unactive: {
-		stroke: "black",
-		strokeWidth: 3
+		stroke: grey['700'],
 	},
 	active: {
-		stroke: "orange",
-		strokeWidth: 4
+		stroke: red['300'],
 	},
 	visited: {
-		stroke: 'black',
-		strokeWidth: 3
+		stroke: purple['300'],
 	}
 }

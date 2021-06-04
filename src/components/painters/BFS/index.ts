@@ -1,5 +1,6 @@
 import { NodesEdges } from '../../Canvas/GraphCanvas'
 import { BFSReturn } from '../../../core/algorithms/BFS'
+import {nodeStyles,edgeStyles} from '../../shape_styles'
 
 interface PainterArguments {
 	output: BFSReturn[];
@@ -14,14 +15,18 @@ const BFSPainter = (out: BFSReturn[] | BFSReturn, index: number) =>
 		if (Array.isArray(out)) {
 			const outArray = out as BFSReturn[]
 			outArray.forEach(graphNode => {
-				nodes[graphNode.from].fill = 'red';
-				nodes[graphNode.to].fill = 'orange';
-				edges[graphNode.edgeIndex as number].stroke = 'yellow';
+				nodes[graphNode.from] = {...nodes[graphNode.from],...nodeStyles.visited};
+				nodes[graphNode.to] = {...nodes[graphNode.to],...nodeStyles.visited};;
+				edges[graphNode.edgeIndex as number] = {...edges[graphNode.edgeIndex as number], ...edgeStyles.active}
 			})
 		} else {
-			nodes[out.to].fill = out.role === 'current' ? 'red' : 'grey';
+			if (out.role==='current')
+				nodes[out.to] = {...nodes[out.to],...nodeStyles.active}
+			else 
+				nodes[out.to] = {...nodes[out.to],...nodeStyles.unactive}
+
 			if (out.edgeIndex !== undefined)
-				edges[out.edgeIndex].stroke = 'black'
+				edges[out.edgeIndex] = { ...edges[out.edgeIndex],...edgeStyles.unactive}
 		}
 
 	}

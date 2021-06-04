@@ -8,12 +8,8 @@ const useStyles = makeStyles(theme=>({
 	container:{
 		display:'flex',
 		flexDirection:'column',
-		background:theme.palette.grey['900'],
 		color:'white',
-		padding:20,
 		borderRadius:4,
-		position:'absolute',
-		right:-100,
 	}
 }));
 
