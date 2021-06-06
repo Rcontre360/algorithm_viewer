@@ -1,7 +1,7 @@
 import produce from 'immer'
-import * as actions from '../../action_types'
-import { initialState, RootState } from '../../store'
-import { IReduxAction } from '../../interfaces'
+import * as actions from '@shared/redux/action_types'
+import { initialState, RootState } from '@shared/redux/store'
+import { IReduxAction } from '@shared/redux/interfaces'
 
 export const graphState = {
 	output: undefined,

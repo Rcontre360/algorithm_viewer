@@ -1,13 +1,14 @@
 import React from "react"
 import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux'
-import store from './redux/store'
-import App from "./modules/GraphPlayground";
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import grey from "@material-ui/core/colors/grey";
 import purple from "@material-ui/core/colors/purple";
 import green from "@material-ui/core/colors/green";
+
+import store from '@shared/redux/store'
+import Page from "@modules/graph";
 
 const theme = createMuiTheme({
 	palette: {
@@ -29,14 +30,15 @@ const theme = createMuiTheme({
 	},
 });
 
-ReactDOM.render(
-  <React.StrictMode>
+export default function App(){
+	return (
+	<React.StrictMode>
 		<ThemeProvider theme={theme}>
-			<CssBaseline/>
-		  <Provider store={store}>
-		    <App />
-		  </Provider>
+			<CssBaseline />
+			<Provider store={store}>
+				<Page />
+			</Provider>
 		</ThemeProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+  </React.StrictMode >
+	)
+}

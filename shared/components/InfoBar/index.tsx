@@ -1,8 +1,8 @@
 import React from 'react';
-import {useSelector} from '../../redux/hooks'
 import Box from '@material-ui/core/Box';
 import Typo from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles'
+import {useSelector} from '@shared/redux/hooks'
 
 const useStyles = makeStyles(theme=>({
 	container:{

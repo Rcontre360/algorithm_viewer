@@ -1,6 +1,6 @@
 import { createStore, Store } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension';
-import mainReducer from '../reducer'
+import mainReducer from '@shared/redux/reducer'
 
 interface CommonState {
 	speed: number;

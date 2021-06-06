@@ -6,17 +6,16 @@ import Box from '@material-ui/core/Box';
 import Slider from '@material-ui/core/Slider'
 import Button from '@material-ui/core/Button'
 
-import { useDispatch,useSelector } from 'redux/hooks';
-import Canvas from 'components/Canvas/GraphCanvas'
-import InfoBar from 'components/InfoBar'
-import ConfigPanel from 'components/ConfigPanel'
-
+import Canvas from '@shared/components/Canvas/graph'
+import InfoBar from '@shared/components/InfoBar'
+import ConfigPanel from '@shared/components/ConfigPanel'
+import { useDispatch,useSelector } from '@shared/redux/hooks';
 import {
 	onAllowAddNode,
 	onAllowAddEdge,
 	onSetDirected,
 	onStartAlgorithm
-} from 'redux/actions'
+} from '@shared/redux/actions'
 
 const useStyles = makeStyles((theme)=>({
 	container:{

@@ -1,6 +1,6 @@
-import * as actions from '../../action_types';
-import { AppDispatch } from '../../store'
-import Manager from '../../../core/useCases/Manager'
+import * as actions from '@shared/redux/action_types';
+import { AppDispatch } from '@shared/redux/store'
+import Manager from '@core/useCases/Manager'
 
 export const onStartAlgorithm = (time: number) => {
 	return (dispatch: AppDispatch) => {

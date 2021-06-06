@@ -5,16 +5,16 @@ import { Stage, Layer, Circle, Text, Line, Arrow } from 'react-konva';
 import purple from "@material-ui/core/colors/purple";
 import green from "@material-ui/core/colors/green";
 
-import { getRelativeCoordenades,getCircleBorderPoint } from '../../../utils'
+import { getRelativeCoordenades,getCircleBorderPoint } from '@shared/utils'
 import {
 	onAddNode,
 	onAddEdge,
 	onSetAlgorithm,
 	onSetDataStructure
-} from '../../../redux/actions'
-import {useSelector,useDispatch} from '../../../redux/hooks'
-import {onStopAlgorithm} from '../../../redux/actions'
-import painters from '../../painters'
+} from '@shared/redux/actions'
+import {useSelector,useDispatch} from '@shared/redux/hooks'
+import {onStopAlgorithm} from '@shared/redux/actions'
+import painters from '@shared/painters'
 
 setAutoFreeze(false)
 

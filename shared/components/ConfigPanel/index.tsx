@@ -1,6 +1,5 @@
 import React from 'react'
 import clsx from 'clsx'
-import {useDispatch} from 'redux/hooks'
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -27,11 +26,12 @@ import Box from '@material-ui/core/Box';
 import Slider from '@material-ui/core/Slider';
 import Button from '@material-ui/core/Button';
 
+import {useDispatch} from '@shared/redux/hooks'
 import {
   onStartAlgorithm,
   onSetSpeed,
   onSetAlgorithm,
-} from 'redux/actions'
+} from '@shared/redux/actions'
 
 const drawerWidth = 300;
 
