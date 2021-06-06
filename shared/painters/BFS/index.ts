@@ -1,6 +1,6 @@
-import { NodesEdges } from '../../Canvas/GraphCanvas'
-import { BFSReturn } from '../../../core/algorithms/BFS'
-import {nodeStyles,edgeStyles} from '../../shape_styles'
+import { NodesEdges } from '@shared/components/Canvas/graph'
+import { BFSReturn } from '@core/algorithms/BFS'
+import {nodeStyles,edgeStyles} from '@shared/styles'
 
 interface PainterArguments {
 	output: BFSReturn[];

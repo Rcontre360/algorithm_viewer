@@ -1,6 +1,6 @@
-import { NodesEdges } from '../../Canvas/GraphCanvas'
-import { DFSReturn } from '../../../core/algorithms/DFS'
-import {edgeStyles,nodeStyles} from '../../shape_styles'
+import { NodesEdges } from '@shared/componentsCanvas/graph'
+import { DFSReturn } from '@core/algorithms/DFS'
+import {edgeStyles,nodeStyles} from '@shared/styles'
 
 interface PainterArguments {
 	output: DFSReturn[];
