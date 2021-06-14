@@ -1,6 +1,6 @@
-import GraphCase from '../GraphCase'
-import DFS from '../../algorithms/DFS'
-import BFS from '../../algorithms/BFS'
+import GraphCase from '@core/useCases/GraphCase'
+import DFS from '@core/algorithms/DFS'
+import BFS from '@core/algorithms/BFS'
 
 const DSMapper = {
 	'graph': GraphCase

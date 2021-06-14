@@ -3,11 +3,11 @@ import {render,screen,fireEvent} from '@testing-library/react'
 import {Provider,useSelector} from 'react-redux'
 import produce from 'immer'
 
-import * as actions from '../../../redux/actions'
-import store,{InitialState} from '../../../redux/store'
-import Canvas from '../../../components/Canvas/GraphCanvas'
+import * as actions from '@shared/redux/actions'
+import store,{InitialState} from '@shared/redux/store'
+import Canvas from '@shared/components/Canvas/graph'
 
-jest.mock('../../../redux/actions')
+jest.mock('@shared/redux/actions')
 
 const mockAppState = store.getState() as InitialState
 jest.mock("react-redux", () => ({

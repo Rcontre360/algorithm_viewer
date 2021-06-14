@@ -1,8 +1,8 @@
 import { mocked } from 'ts-jest/utils';
-import Graph,{FIELDS} from '../../../core/data_structures/Graph'
+import Graph,{FIELDS} from '@core/data_structures/Graph'
 import { GraphCase } from './index'
 
-jest.mock('../../../core/data_structures/Graph')
+jest.mock('@core/data_structures/Graph')
 
 const algorithmReturn = [{ forward: true, from: -1, to: 0 }]
 const algorithm = jest.fn(() => algorithmReturn)

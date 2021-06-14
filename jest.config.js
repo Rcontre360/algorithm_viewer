@@ -2,21 +2,16 @@
 module.exports = {
 	// The root of your source code, typically /src
 	// `<rootDir>` is a token Jest substitutes
-	"roots": ["<rootDir>/src/"] ,
 
 	// Jest transformations -- this adds support for TypeScript
 	// using ts-jest
 	transform: {
-		"^.+\\.tsx?$": "ts-jest"
+		"^.+\\.tsx?$": "ts-jest",
 	},
-	// "moduleNameMapper": {
-	// 	"core/(.*)": "<rootDir>/src/core/$1",
-	// 	"redux/(.*)": "<rootDir>/src/redux/$1",
-	// 	"adapters/(.*)": "<rootDir>/src/adapters/$1",
-	// 	"components/(.*)": "<rootDir>/src/components/$1",
-	// 	"react-redux": "<rootDir>/node_modules/react-redux",
-	// 	"@testing-library/react": "<rootDir>/node_modules/@testing-library/react",
-	// },
+	"moduleNameMapper": {
+		"^@core(.*)$": "<rootDir>/core$1",
+		"^@shared(.*)$": "<rootDir>/shared$1",
+	},
 	"verbose": true,
 
 	// Runs special logic, such as cleaning up components

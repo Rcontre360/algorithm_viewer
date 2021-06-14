@@ -1,6 +1,6 @@
-import * as actions from '../../action_types'
-import Manager from '../../../core/useCases/Manager';
-import { recursiveClear } from '../../../utils/tests'
+import * as actions from '@shared/redux/action_types'
+import Manager from '@core/useCases/Manager';
+import { recursiveClear } from '@shared/utils/tests'
 import {
 	onStartAlgorithm,
 	onStopAlgorithm,
@@ -9,7 +9,7 @@ import {
 	onSetDataStructure,
 } from './index'
 
-jest.mock('../../../core/useCases/Manager');
+jest.mock('@core/useCases/Manager');
 
 describe('Redux common actions should dispatch correct actions', () => {
 
