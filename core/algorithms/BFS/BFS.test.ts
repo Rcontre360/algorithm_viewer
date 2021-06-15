@@ -1,4 +1,4 @@
-import { Graph } from '../../../core/data_structures/Graph'
+import { Graph } from '@core/data_structures/Graph'
 import BFS from './index'
 
 describe('BFS should return right values', () => {

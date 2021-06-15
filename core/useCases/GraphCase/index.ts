@@ -1,4 +1,4 @@
-import Graph from '../../../core/data_structures/Graph'
+import Graph from '@core/data_structures/Graph'
 
 export class GraphCase < T extends GraphType > {
 
@@ -89,7 +89,7 @@ export class GraphCase < T extends GraphType > {
 	}
 
 	private parseReturnValue = (obj: GraphReturn, edges: IGraphEdge[]) => {
-		const newObject = { ...obj } as AlgorithmCaseReturn < T > ;
+		const newObject = { ...obj }
 
 		if (obj.from >= 0)
 			newObject.fromData = this.graph.getNodeData(obj.from)
