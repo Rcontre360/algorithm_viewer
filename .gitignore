@@ -7,3 +7,6 @@ dist
 
 # others
 package-lock.json
+
+#ide config
+algo_view.code-workspace
