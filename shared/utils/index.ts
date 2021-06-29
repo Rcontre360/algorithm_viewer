@@ -9,8 +9,8 @@ export const getRelativeCoordenades = (event: React.MouseEvent) => {
 }
 
 interface Point{
-	x: number;
-	y: number;
+	x?: number;
+	y?: number;
 }
 
 interface CircleBorderPoint{
@@ -25,10 +25,10 @@ export const getCircleBorderPoint = ({
 	point
 }:CircleBorderPoint)=>{
 
-	const x1 = point.x,
-		y1 = point.y,
-		x2 = center.x,
-		y2 = center.y;
+	const x1 = point.x || 0,
+		y1 = point.y || 0,
+		x2 = center.x || 0,
+		y2 = center.y || 0;
 
 	const angle = (y1 - y2) / (x1 - x2)
 	const powAngle = Math.pow(angle, 2)

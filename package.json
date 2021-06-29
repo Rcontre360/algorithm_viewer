@@ -36,6 +36,7 @@
 		"react": "^17.0.1",
 		"react-dom": "^17.0.2",
 		"react-konva": "*",
+		"react-konva-utils": "^0.1.5",
 		"react-redux": "^7.2.3",
 		"redux": "^4.0.5"
 	}

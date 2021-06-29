@@ -10,3 +10,4 @@ package-lock.json
 
 #ide config
 algo_view.code-workspace
+.vscode

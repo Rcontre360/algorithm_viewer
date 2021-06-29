@@ -3,11 +3,7 @@
     "baseUrl": ".",
     "rootDir": ".",
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -24,11 +20,9 @@
     "paths": {
       "@shared/*": ["shared/*"],
       "@modules/*": ["modules/*"],
-      "@core/*": ["core/*"],
+      "@core/*": ["core/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
