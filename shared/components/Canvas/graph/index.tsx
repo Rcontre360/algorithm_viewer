@@ -122,13 +122,14 @@ const Canvas = (
   };
 
   React.useEffect(() => {
-    if (!data) return;
+    if (!data || !data.connections) return;
     changeNodesEdges((nodesEdges) => {
       const nodes = nodesEdges.nodes;
       nodesEdges.edges = [];
       parseEdgesData(nodesEdges);
     });
-  }, [data && data.connections]);
+    console.log("parsed data");
+  }, [data, data && data.connections, data && data.nodes, data && data.edges]);
 
   React.useEffect(() => {
     setNodesEdges({ nodes: [], edges: [] });

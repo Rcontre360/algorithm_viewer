@@ -50,6 +50,11 @@ const GraphEdge: React.FunctionComponent<Props> = (props) => {
             onChange={(newWeight) =>
               onSetEdgeWeight(edgeIndex, parseInt(newWeight as string))
             }
+            style={{ maxWidth: "120px" }}
+            inputProps={{
+              type: "number",
+              inputProps: { style: { color: "white" } },
+            }}
             title={String(weight)}
           />
         )}

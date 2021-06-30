@@ -54,6 +54,10 @@ const graphReducer: RootState = (state = graphState, action: IReduxAction) => {
       return produce(state, (state) => {
         state.options.weighted = action.payload;
       });
+    case actions.SET_EDGE_WEIGTH:
+      return produce(state, (state) => {
+        state.data = action.payload;
+      });
     default:
       return state;
   }

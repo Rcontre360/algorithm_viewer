@@ -7,6 +7,9 @@ import green from "@material-ui/core/colors/green";
 const theme = createMuiTheme({
   overrides: {
     MuiInput: {
+      root: {
+        color: grey["100"],
+      },
       input: {
         color: grey["100"],
       },
@@ -50,4 +53,3 @@ const theme = createMuiTheme({
 });
 
 export default theme;
-
