@@ -18,6 +18,7 @@ import {
   onSetStartNode,
   onAllowAddEdge,
   onSetDirected,
+  onSetWeighted,
   onStartAlgorithm,
 } from "@shared/redux/actions";
 
@@ -75,12 +76,11 @@ const useStyles = makeStyles((theme) => ({
 
 const GraphPlayground = () => {
   const [open, setOpen] = React.useState<boolean>(true);
-  const { addNode, addEdge, directed, startNode, nodes } = useSelector(
-    ({ graph, common }) => ({
+  const { addNode, addEdge, directed, startNode, weighted, nodes } =
+    useSelector(({ graph, common }) => ({
       ...graph.options,
       ...graph.data,
-    })
-  );
+    }));
   const canvasContainer = React.useRef<HTMLDivElement>();
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -105,7 +105,7 @@ const GraphPlayground = () => {
                 <ChangeableTitle
                   title={String(startNode + 1)}
                   onChange={(input) =>
-                    onSetStartNode(parseInt(input as string) + 1)(dispatch)
+                    onSetStartNode(parseInt(input as string) - 1)(dispatch)
                   }
                   style={{ maxWidth: "200px", marginLeft: "1em" }}
                   inputProps={{
@@ -146,6 +146,13 @@ const GraphPlayground = () => {
               onClick={(e) => onSetDirected(!directed)(dispatch)}
             >
               Set directed
+            </Button>
+            <Button
+              variant={weighted ? "contained" : "outlined"}
+              color="secondary"
+              onClick={(e) => onSetWeighted(!weighted)(dispatch)}
+            >
+              Set weighted
             </Button>
             {!open && (
               <Button

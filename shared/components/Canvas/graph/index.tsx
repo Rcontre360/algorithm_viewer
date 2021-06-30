@@ -1,6 +1,6 @@
 import React from "react";
 import produce, { setAutoFreeze } from "immer";
-import { Stage, Layer, Circle, Line, Arrow, Group, Star } from "react-konva";
+import { Stage, Layer } from "react-konva";
 import Konva from "konva";
 import purple from "@material-ui/core/colors/purple";
 import green from "@material-ui/core/colors/green";
@@ -21,7 +21,7 @@ setAutoFreeze(false);
 
 interface NodesEdges {
   nodes: Konva.CircleConfig[];
-  edges: Konva.LineConfig[];
+  edges: (IGraphEdge & Konva.LineConfig)[];
 }
 
 const Canvas = (
@@ -29,7 +29,7 @@ const Canvas = (
 ) => {
   const { width, height } = props;
   const {
-    options: { directed, addNode, addEdge },
+    options: { directed, addNode, addEdge, weighted },
     algorithm: { name, dataStructure },
     data,
     output,
@@ -116,6 +116,7 @@ const Canvas = (
         srcNode: edge.nodeSrc,
         destNode: edge.nodeDest,
         stroke: purple["300"],
+        weight: edge.weight,
       });
     });
   };
@@ -198,7 +199,13 @@ const Canvas = (
         >
           <Layer>
             {edges.map((edge: Konva.LineConfig, i: number) => (
-              <GraphEdge key={i} directed={directed} edgeIndex={i} {...edge} />
+              <GraphEdge
+                key={i}
+                directed={directed}
+                weighted={weighted}
+                edgeIndex={i}
+                {...edge}
+              />
             ))}
             {nodes.map((node: Konva.CircleConfig, i: number) => (
               <GraphNode

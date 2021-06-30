@@ -16,6 +16,7 @@ interface AlgorithmState {
     readonly addNode: boolean;
     readonly addEdge: boolean;
     readonly directed: boolean;
+    readonly weighted: boolean;
     readonly startNode: number;
   };
   readonly output: any;
@@ -42,6 +43,7 @@ export const initialState: IInitialState = {
       addNode: false,
       addEdge: false,
       directed: false,
+      weighted: false,
       startNode: 0,
     },
     data: {

@@ -11,4 +11,5 @@ export const ALLOW_ADD_NODE = "allow_add_node";
 export const ALLOW_ADD_EDGE = "allow_add_edge";
 export const ADD_NODE = "add_node";
 export const ADD_EDGE = "add_edge";
-
+export const SET_WEIGHTED = "set_weighted";
+export const SET_EDGE_WEIGTH = "set_edge_weight";

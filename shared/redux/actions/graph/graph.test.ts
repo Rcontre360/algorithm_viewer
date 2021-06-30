@@ -82,4 +82,16 @@ describe("Redux common actions should dispatch correct actions", () => {
     });
     expect(Manager.setOptions).toHaveBeenCalledWith({ startNode });
   });
+
+  test("On set edge weight", () => {
+    throw Error("tests unfinished");
+    //const edgeWeight = 5, edgeIndex = 2;
+    //onSetEdgeWeight({edge:edgeIndex,weight:edgeWeight})
+
+    //expect(dispatch).toHaveBeenCalledWith({
+    //type: actions.SET_EDGE_WEIGTH,
+    //payload: startNode,
+    //});
+    //expect(Manager.setOptions).toHaveBeenCalledWith({ startNode });
+  });
 });

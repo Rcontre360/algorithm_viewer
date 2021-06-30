@@ -71,3 +71,21 @@ export const onSetStartNode = (startNode: number) => {
   };
 };
 
+export const onSetEdgeWeight = (edge: number, weight: number) => {
+  Manager.dataStructure.setEdgeWeight(edge, weight);
+  return (dispatch: AppDispatch) => {
+    return dispatch({
+      type: actions.SET_EDGE_WEIGTH,
+      payload: Manager.dataStructure.getGraphData(),
+    });
+  };
+};
+
+export const onSetWeighted = (isWeighted: boolean) => {
+  return (dispatch: AppDispatch) => {
+    return dispatch({
+      type: actions.SET_WEIGHTED,
+      payload: isWeighted,
+    });
+  };
+};

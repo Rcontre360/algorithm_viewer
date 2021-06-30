@@ -7,6 +7,7 @@ export const graphState = {
   output: undefined,
   options: {
     addNode: false,
+    weighted: false,
     addEdge: false,
     directed: false,
   },
@@ -49,10 +50,13 @@ const graphReducer: RootState = (state = graphState, action: IReduxAction) => {
       return produce(state, (state) => {
         state.data.startNode = action.payload;
       });
+    case actions.SET_WEIGHTED:
+      return produce(state, (state) => {
+        state.options.weighted = action.payload;
+      });
     default:
       return state;
   }
 };
 
 export default graphReducer;
-
