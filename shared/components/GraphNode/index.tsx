@@ -1,5 +1,5 @@
 import React from "react";
-import { Circle, Group, Text } from "react-konva";
+import { Circle, Group, Text, KonvaNodeEvents } from "react-konva";
 import { Html } from "react-konva-utils";
 import Konva from "konva";
 import Typo from "@material-ui/core/Typography";
@@ -7,16 +7,30 @@ import ChangeableTitle from "@shared/components/ChangeableTitle";
 
 interface Props extends Konva.CircleConfig {
   nodeIndex: number;
+  onDelete: (index: number) => void;
+  canvasWidth: number;
+  canvasHeight: number;
 }
 
 const circleOffset = 5;
 
 const GraphCircle: React.FunctionComponent<Props> = (props) => {
-  const { width, height, nodeIndex, x, y, radius, ...rest } = props;
+  const {
+    width,
+    height,
+    nodeIndex,
+    x,
+    y,
+    radius,
+    canvasWidth,
+    canvasHeight,
+    onDelete,
+    ...rest
+  } = props;
   const originLeft = { x: (x || 0) - radius, y: (y || 0) - radius };
 
   return (
-    <Group width={width} height={height}>
+    <Group width={canvasWidth} height={canvasHeight}>
       <Circle
         width={(width || circleOffset) - circleOffset}
         height={(height || circleOffset) - circleOffset}
@@ -26,10 +40,13 @@ const GraphCircle: React.FunctionComponent<Props> = (props) => {
         {...rest}
       />
       <Text
-        text={"X"}
+        onMouseDown={() => {
+          onDelete(nodeIndex);
+        }}
+        text={"Remove"}
         fill="red"
-        x={originLeft.x + radius}
-        y={originLeft.y + radius}
+        x={originLeft.x}
+        y={originLeft.y + radius + 24}
       />
       <Html
         divProps={{

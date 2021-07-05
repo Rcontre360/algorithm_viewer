@@ -217,6 +217,11 @@ const Canvas = (
               <GraphNode
                 key={i}
                 nodeIndex={i}
+                onDelete={(index: number) => {
+                  changeNodes((nodes) => {
+                    nodes.splice(i, 1);
+                  });
+                }}
                 onMouseDown={() => {
                   if (!addEdge) return;
                   setIsAddingEdge(true);
