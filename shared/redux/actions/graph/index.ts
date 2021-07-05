@@ -38,6 +38,10 @@ export const onAddNode = (nodeData: GraphType) => {
   };
 };
 
+export const onRemoveNode = (nodeIndex: number) => {
+  Manager.dataStructure;
+};
+
 export const onAddEdge = (connection: {
   src: number | GraphType;
   dest: number | GraphType;
