@@ -4,18 +4,19 @@ import { Html } from "react-konva-utils";
 import Konva from "konva";
 import Typo from "@material-ui/core/Typography";
 import ChangeableTitle from "@shared/components/ChangeableTitle";
-import { onSetEdgeWeight } from "@shared/redux/actions";
 
 interface Props extends Konva.LineConfig {
   directed: boolean;
   weighted: boolean;
   weight?: number;
   edgeIndex: number;
+  onSetWeight: (weight: string) => void;
 }
 
 const GraphEdge: React.FunctionComponent<Props> = (props) => {
   const {
     directed,
+    onSetWeight,
     edgeIndex,
     width,
     height,
@@ -47,9 +48,7 @@ const GraphEdge: React.FunctionComponent<Props> = (props) => {
       >
         {weighted && (
           <ChangeableTitle
-            onChange={(newWeight) =>
-              onSetEdgeWeight(edgeIndex, parseInt(newWeight as string))
-            }
+            onChange={onSetWeight as any}
             style={{ maxWidth: "120px" }}
             inputProps={{
               type: "number",

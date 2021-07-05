@@ -11,9 +11,9 @@ import {
   onAddEdge,
   onSetAlgorithm,
   onSetDataStructure,
+  onSetEdgeWeight,
 } from "@shared/redux/actions";
 import { useSelector, useDispatch } from "@shared/redux/hooks";
-import { onStopAlgorithm } from "@shared/redux/actions";
 import GraphEdge from "@shared/components/GraphEdge";
 import painters from "@shared/painters";
 
@@ -167,6 +167,10 @@ const Canvas = (
     };
   }, [isAddingEdge]);
 
+  const handleSetEdgeWeight = (index: number) => (newWeight: string) => {
+    onSetEdgeWeight(index, newWeight)(dispatch);
+  };
+
   return (
     <div
       data-testid="canvas_container"
@@ -205,6 +209,7 @@ const Canvas = (
                 directed={directed}
                 weighted={weighted}
                 edgeIndex={i}
+                onSetWeight={handleSetEdgeWeight(i)}
                 {...edge}
               />
             ))}

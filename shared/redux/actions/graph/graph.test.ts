@@ -6,6 +6,7 @@ import {
   onAddNode,
   onSetDirected,
   onSetStartNode,
+  onSetEdgeWeight,
   onAllowAddEdge,
   onAllowAddNode,
 } from "./index";
@@ -84,14 +85,21 @@ describe("Redux common actions should dispatch correct actions", () => {
   });
 
   test("On set edge weight", () => {
-    throw Error("tests unfinished");
-    //const edgeWeight = 5, edgeIndex = 2;
-    //onSetEdgeWeight({edge:edgeIndex,weight:edgeWeight})
+    const edgeWeight = 5,
+      edgeIndex = 2;
+    const managerDataStructureData = Manager.dataStructure.getGraphData();
+    onSetEdgeWeight(edgeIndex, edgeWeight)(dispatch);
 
-    //expect(dispatch).toHaveBeenCalledWith({
-    //type: actions.SET_EDGE_WEIGTH,
-    //payload: startNode,
-    //});
-    //expect(Manager.setOptions).toHaveBeenCalledWith({ startNode });
+    expect(dispatch).toHaveBeenCalledWith({
+      type: actions.SET_EDGE_WEIGTH,
+      payload: managerDataStructureData,
+    });
+    expect(Manager.dataStructure.setEdgeWeight).toHaveBeenCalledWith(
+      edgeIndex,
+      edgeWeight
+    );
+    expect(Manager.dataStructure.getGraphData).toHaveReturnedWith(
+      managerDataStructureData
+    );
   });
 });
